@@ -1,33 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Customer } from '../entities/customer.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { CustomersRepository } from './customers.repository';
 
 @Injectable()
 export class CustomersService {
-  constructor(
-    @InjectRepository(Customer)
-    private readonly customerRepository: Repository<Customer>,
-  ) {}
+  constructor(private readonly customersRepository: CustomersRepository) {}
 
   create(dto: CreateCustomerDto): Promise<Customer> {
-    const customer = this.customerRepository.create({
+    const customer = this.customersRepository.create({
       name: dto.name,
       email: dto.email,
       phone: dto.phone,
       address: dto.address,
     });
-    return this.customerRepository.save(customer);
+    return this.customersRepository.save(customer);
   }
 
   findAll(): Promise<Customer[]> {
-    return this.customerRepository.find();
+    return this.customersRepository.findAll();
   }
 
   async findOne(id: number): Promise<Customer> {
-    const customer = await this.customerRepository.findOne({ where: { id } });
+    const customer = await this.customersRepository.findById(id);
     if (!customer) {
       throw new NotFoundException(`Customer with ID ${id} not found`);
     }
@@ -36,12 +32,11 @@ export class CustomersService {
 
   async update(id: number, dto: UpdateCustomerDto): Promise<Customer> {
     const customer = await this.findOne(id);
-    Object.assign(customer, dto);
-    return this.customerRepository.save(customer);
+    return this.customersRepository.mergeAndSave(customer, dto);
   }
 
-  async remove(id: number): Promise<Customer> {
+  async remove(id: number): Promise<void> {
     const customer = await this.findOne(id);
-    return this.customerRepository.remove(customer);
+    await this.customersRepository.remove(customer);
   }
 }

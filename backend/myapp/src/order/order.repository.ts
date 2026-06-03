@@ -32,4 +32,8 @@ export class OrderRepository {
       relations: ['items', 'items.product'],
     });
   }
+
+  async remove(order: Order): Promise<Order> {
+    return this.repo.remove(order);
+  }
 }

@@ -6,16 +6,19 @@ import {
   Param,
   Put,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { SupplierService } from './supplier.service';
 import { Supplier } from '../entities/supplier.entity';
+import { CreateSupplierDto } from './dto/create-supplier.dto';
+import { UpdateSupplierDto } from './dto/update-supplier.dto';
 
 @Controller('suppliers')
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
   @Post()
-  create(@Body() body: Partial<Supplier>): Promise<Supplier> {
+  create(@Body() body: CreateSupplierDto): Promise<Supplier> {
     return this.supplierService.create(body);
   }
 
@@ -25,20 +28,20 @@ export class SupplierController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number): Promise<Supplier> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Supplier> {
     return this.supplierService.findOne(id);
   }
 
   @Put(':id')
   update(
-    @Param('id') id: number,
-    @Body() body: Partial<Supplier>,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateSupplierDto,
   ): Promise<Supplier> {
     return this.supplierService.update(id, body);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number): Promise<void> {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.supplierService.remove(id);
   }
 }

@@ -1,0 +1,42 @@
+
+@layer base {
+  :root {
+    --color-bg-body: #eee; 
+    --color-bg-primary: #059669;
+    --color-bg-sidebar: #064E3B;
+    --color-bg-light-green: #DAF8E6;
+    --color-bg-card: #059669;
+    --color-bg-light: theme('colors.gray.50');
+    --color-bg-dark: theme('colors.gray.800');
+  }
+  body {
+    background-color: var(--color-bg-body);
+  }
+}
+
+@layer components {
+  .border-body {
+    background-color: var(--color-bg-body);
+  }
+  .border-card {
+    background-color: var(--color-bg-card);
+  }
+  .border-primary {
+    background-color: var(--color-bg-primary);
+  }
+  .border-green-light {
+    background-color: var(--color-bg-light-green);
+  }
+  .border-light {
+    background-color: var(--color-bg-light);
+  }
+  .border-dark {
+    background-color: var(--color-bg-dark);
+  }
+  .border-sidebar{
+    background-color: var(--color-bg-sidebar);
+  }
+  .border-sidebar-active{
+     background-color: var(--sidebar-primary-foreground);
+  }
+}

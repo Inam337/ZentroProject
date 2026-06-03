@@ -6,16 +6,19 @@ import {
   Param,
   Put,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { Stock } from '../entities/stock.entity';
+import { CreateStockDto } from './dto/create-stock.dto';
+import { UpdateStockDto } from './dto/update-stock.dto';
 
 @Controller('stocks')
 export class StockController {
   constructor(private readonly stockService: StockService) {}
 
   @Post()
-  create(@Body() body: Partial<Stock>): Promise<Stock> {
+  create(@Body() body: CreateStockDto): Promise<Stock> {
     return this.stockService.create(body);
   }
 
@@ -25,20 +28,20 @@ export class StockController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number): Promise<Stock> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Stock> {
     return this.stockService.findOne(id);
   }
 
   @Put(':id')
   update(
-    @Param('id') id: number,
-    @Body() body: Partial<Stock>,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateStockDto,
   ): Promise<Stock> {
     return this.stockService.update(id, body);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number): Promise<void> {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.stockService.remove(id);
   }
 }

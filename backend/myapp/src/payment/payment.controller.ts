@@ -6,6 +6,8 @@ import {
   Param,
   ParseIntPipe,
   UseGuards,
+  Get,
+  Delete,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -27,6 +29,19 @@ export class PaymentController {
     return this.paymentService.createForUser(userId, body);
   }
 
+  @Get()
+  findAll(@CurrentUserId() userId: number): Promise<Payment[]> {
+    return this.paymentService.findAllForUser(userId);
+  }
+
+  @Get(':id')
+  findOne(
+    @CurrentUserId() userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Payment> {
+    return this.paymentService.findOneForUser(userId, id);
+  }
+
   @Put(':id/status')
   updateStatus(
     @CurrentUserId() userId: number,
@@ -34,5 +49,13 @@ export class PaymentController {
     @Body() body: UpdatePaymentStatusDto,
   ): Promise<Payment> {
     return this.paymentService.updateStatusForUser(userId, id, body);
+  }
+
+  @Delete(':id')
+  remove(
+    @CurrentUserId() userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.paymentService.removeForUser(userId, id);
   }
 }

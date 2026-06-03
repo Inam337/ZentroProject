@@ -10,6 +10,14 @@ export class OrderItemRepository {
     private readonly repo: Repository<OrderItem>,
   ) {}
 
+  async findAllForUser(userId: number): Promise<OrderItem[]> {
+    return this.repo.find({
+      where: { order: { user: { id: userId } } },
+      relations: ['order', 'product'],
+      order: { id: 'DESC' },
+    });
+  }
+
   async findOneForUser(
     userId: number,
     itemId: number,

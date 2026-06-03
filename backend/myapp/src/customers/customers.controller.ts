@@ -3,9 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { Customer } from '../entities/customer.entity';
@@ -27,20 +28,20 @@ export class CustomersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Customer> {
-    return this.customersService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Customer> {
+    return this.customersService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateCustomerDto: UpdateCustomerDto,
   ): Promise<Customer> {
-    return this.customersService.update(+id, updateCustomerDto);
+    return this.customersService.update(id, updateCustomerDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<Customer> {
-    return this.customersService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.customersService.remove(id);
   }
 }

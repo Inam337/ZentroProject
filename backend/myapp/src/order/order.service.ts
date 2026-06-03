@@ -11,6 +11,7 @@ import { OrderItem } from '../order-item/entities/order-item.entity';
 import { OrderStatus } from '../entities/order-status.enum';
 import { Users } from '../entities/user.entity';
 import { OrderRepository } from './order.repository';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Injectable()
 export class OrderService {
@@ -92,5 +93,21 @@ export class OrderService {
       throw new NotFoundException(`Order ${orderId} not found`);
     }
     return order;
+  }
+
+  async updateStatusForUser(
+    userId: number,
+    orderId: number,
+    dto: UpdateOrderStatusDto,
+  ): Promise<Order> {
+    const order = await this.findOneForUser(userId, orderId);
+    order.status = dto.status;
+    await this.orderRepository.save(order);
+    return this.findOneForUser(userId, orderId);
+  }
+
+  async removeForUser(userId: number, orderId: number): Promise<void> {
+    const order = await this.findOneForUser(userId, orderId);
+    await this.orderRepository.remove(order);
   }
 }

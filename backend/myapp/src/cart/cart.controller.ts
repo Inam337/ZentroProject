@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -21,5 +21,10 @@ export class CartController {
     @Body() dto: AddToCartDto,
   ): Promise<Cart> {
     return this.cartService.addToCart(userId, dto);
+  }
+
+  @Delete()
+  clear(@CurrentUserId() userId: number): Promise<Cart> {
+    return this.cartService.clearCart(userId);
   }
 }

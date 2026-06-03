@@ -2,15 +2,20 @@
 <html>
   <head>
     <title>Scalar API</title>
-    <script id="api-reference" data-url="http://localhost:4000/openapi.json"></script>
-<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <!--
+      There is no api.json file in the repo. The Nest app serves the OpenAPI
+      document at GET /api.json while it is running (see src/main.ts).
+      Start the backend, then open this page or use http://localhost:3000/reference
+      for the built-in Scalar UI.
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   </head>
   <body>
+    <div id="app"></div>
     <script>
       Scalar.createApiReference('#app', {
-        url: 'http://localhost:4000/openapi.json',
+        url: 'http://localhost:3000/api.json',
       });
     </script>
-    <div id="app"></div>
   </body>
 </html>

@@ -1,13 +1,24 @@
-import { Controller, Post, Body, Get, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { SaleService } from './sale.service';
 import { Sale } from '../entities/sale.entity';
+import { CreateSaleDto } from './dto/create-sale.dto';
+import { UpdateSaleDto } from './dto/update-sale.dto';
 
 @Controller('sales')
 export class SaleController {
   constructor(private readonly saleService: SaleService) {}
 
   @Post()
-  create(@Body() body: Partial<Sale>): Promise<Sale> {
+  create(@Body() body: CreateSaleDto): Promise<Sale> {
     return this.saleService.create(body);
   }
 
@@ -17,12 +28,20 @@ export class SaleController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number): Promise<Sale> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Sale> {
     return this.saleService.findOne(id);
   }
 
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateSaleDto,
+  ): Promise<Sale> {
+    return this.saleService.update(id, body);
+  }
+
   @Delete(':id')
-  remove(@Param('id') id: number): Promise<void> {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.saleService.remove(id);
   }
 }

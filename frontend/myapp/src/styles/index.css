@@ -1,0 +1,225 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+:root {
+  --radius: 0.625rem;
+  --font-noto-arabic: "Noto Sans Arabic", sans-serif;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #059669;
+  --primary-foreground: #036d4c;
+  --secondary: #ffffff;
+  --secondary-foreground: #059669;
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: #064e3b;
+  --sidebar-foreground: #064e3b;
+  --sidebar-primary: #059669;
+  --sidebar-primary-foreground: #059669;
+  --sidebar-accent: #059669;
+  --sidebar-accent-foreground: #fff;
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(100% 0.00011 271.152 / 0.1);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --yellow-dark: #d97706;
+  --yellow-light: #fffbeb;
+}
+
+.font-urdu{
+  font-family: var(--font-noto-arabic);
+  font-size: 16px;
+  line-height: 30px;
+}
+body[data-scroll-locked] {
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  position: relative !important;
+  padding-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  margin-left: 0;
+  margin-top: 0;
+  margin-right: 0 !important;
+}
+.rdrDayToday .rdrDayNumber span:after {
+  content: "";
+  background: #059669;
+}
+.border{
+  border-color: var(--border);  
+}
+.hide-scroll {
+  /* Hide default scrollbar for webkit browsers */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scroll::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+.thin-scroll {
+  /* Custom thin scrollbar styles */
+  scrollbar-width: thin;  /* Firefox */
+  scrollbar-color: #6b7280 #adadad;  /* thumb and track colors */
+}
+
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;  /* Width of the scrollbar */
+  height: 6px;  /* Height for horizontal scrollbar */
+}
+
+.thin-scroll::-webkit-scrollbar-track {
+  background: #adadad;  /* Track color - dark gray */
+  border-radius: 3px;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: #bef0d3;  /* Thumb color - medium gray */
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb:hover {
+  background: #bef0d3;  /* Thumb color on hover - light gray */
+}
+
+.thin-scroll::-webkit-scrollbar-corner {
+  background: #adadad;  /* Corner color */
+}
+
+@import "./backgrounds.css";
+@import "./buttons.css";
+@import "./border.css";
+@import "./text.css";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+}
+body{
+  font-family:  var(--font-sans) !important;
+}
+@keyframes border-rotate {
+  0% {
+    background-position: 0% 50%, 0% 50%;
+  }
+  25% {
+    background-position: 100% 50%, 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%, 100% 50%;
+  }
+  75% {
+    background-position: 0% 50%, 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%, 0% 50%;
+  }
+}
+
+.animate-border-rotate {
+  position: relative;
+  padding: 6px;
+  border-radius: 1rem;
+  background: 
+    linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #ff6b6b),
+    linear-gradient(0deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #ff6b6b);
+  background-size: 200% 100%, 100% 200%;
+  background-position: 0% 50%, 50% 0%;
+  animation: border-rotate 4s ease-in-out infinite;
+}
+
+.animate-border-rotate::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  background: white;
+  border-radius: calc(1rem - 6px);
+  z-index: 0;
+}
+
+.animate-border-rotate > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes background-button {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-background-button {
+  background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #ff6b6b);
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+  animation: background-button 4s infinite;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.animate-background-button:hover {
+  background-size: 250% 100%;
+  animation-duration: 1.5s;
+}

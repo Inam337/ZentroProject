@@ -5,10 +5,12 @@ import { Product } from '../entities/product.entity';
 import { Purchase } from '../entities/purchase.entity';
 import { PurchaseItemService } from './purchase.item.service';
 import { PurchaseItemController } from './purchase.item.controller';
+import { PurchaseItemRepository } from './purchase.item.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([PurchaseItem, Product, Purchase])],
-  providers: [PurchaseItemService],
+  providers: [PurchaseItemRepository, PurchaseItemService],
   controllers: [PurchaseItemController],
+  exports: [PurchaseItemRepository, TypeOrmModule],
 })
 export class PurchaseItemModule {}

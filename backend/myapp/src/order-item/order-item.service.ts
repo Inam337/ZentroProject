@@ -6,6 +6,10 @@ import { OrderItem } from './entities/order-item.entity';
 export class OrderItemService {
   constructor(private readonly orderItemRepository: OrderItemRepository) {}
 
+  findAllForUser(userId: number): Promise<OrderItem[]> {
+    return this.orderItemRepository.findAllForUser(userId);
+  }
+
   async findOneForUser(userId: number, itemId: number): Promise<OrderItem> {
     const row = await this.orderItemRepository.findOneForUser(userId, itemId);
     if (!row) {

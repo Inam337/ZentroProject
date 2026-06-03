@@ -1,41 +1,35 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Supplier } from '../entities/supplier.entity';
+import { CreateSupplierDto } from './dto/create-supplier.dto';
+import { UpdateSupplierDto } from './dto/update-supplier.dto';
+import { SupplierRepository } from './supplier.repository';
 
 @Injectable()
 export class SupplierService {
-  constructor(
-    @InjectRepository(Supplier)
-    private readonly supplierRepo: Repository<Supplier>,
-  ) {}
+  constructor(private readonly supplierRepository: SupplierRepository) {}
 
-  async create(data: Partial<Supplier>): Promise<Supplier> {
-    const supplier = this.supplierRepo.create(data);
-    return this.supplierRepo.save(supplier);
+  async create(dto: CreateSupplierDto): Promise<Supplier> {
+    const supplier = this.supplierRepository.create(dto);
+    return this.supplierRepository.save(supplier);
   }
 
   findAll(): Promise<Supplier[]> {
-    return this.supplierRepo.find({ relations: ['purchases'] });
+    return this.supplierRepository.findAllWithRelations();
   }
 
   async findOne(id: number): Promise<Supplier> {
-    const supplier = await this.supplierRepo.findOne({
-      where: { id },
-      relations: ['purchases'],
-    });
+    const supplier = await this.supplierRepository.findByIdWithRelations(id);
     if (!supplier) throw new NotFoundException('Supplier not found');
     return supplier;
   }
 
-  async update(id: number, data: Partial<Supplier>): Promise<Supplier> {
-    await this.findOne(id); // Check existence
-    await this.supplierRepo.update(id, data);
-    return this.findOne(id);
+  async update(id: number, dto: UpdateSupplierDto): Promise<Supplier> {
+    const supplier = await this.findOne(id);
+    return this.supplierRepository.mergeAndSave(supplier, dto);
   }
 
   async remove(id: number): Promise<void> {
     const supplier = await this.findOne(id);
-    await this.supplierRepo.remove(supplier);
+    await this.supplierRepository.remove(supplier);
   }
 }

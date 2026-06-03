@@ -9,6 +9,11 @@ import { OrderItem } from './entities/order-item.entity';
 export class OrderItemController {
   constructor(private readonly orderItemService: OrderItemService) {}
 
+  @Get()
+  findAll(@CurrentUserId() userId: number): Promise<OrderItem[]> {
+    return this.orderItemService.findAllForUser(userId);
+  }
+
   @Get(':id')
   findOne(
     @CurrentUserId() userId: number,

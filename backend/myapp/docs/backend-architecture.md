@@ -21,9 +21,10 @@ This document captures how the **eCommerce-oriented** NestJS API in `backend/mya
 | No entities in controllers | Controllers use **DTOs** only for `@Body()` / query params. |
 | Validated input | DTOs with `class-validator`; global pipe: `whitelist`, `forbidNonWhitelisted`, `transform: true`. |
 | Module → service → repository | Feature **repository** classes wrap `@InjectRepository()`; services hold business logic. |
+| Relation inputs use IDs | Request DTOs accept fields like `categoryId`, `productId`, `supplierId`, `purchaseId`, `saleId`, `orderId`; services resolve entities before save. |
 | Do not trust client prices | Cart/order flows read **DB product price**; order lines store a **price snapshot**. |
 | Soft-delete products | `Product.isActive`; `DELETE /products/:id` sets `isActive = false` (no hard delete). |
-| Relations in reads | Product listing/detail loads `category` + `stockEntries` where applicable. |
+| Relations in reads | Repositories define relation-aware list/detail methods for resources that expose related rows. |
 
 ---
 
@@ -41,9 +42,15 @@ src/
   entities/             # shared domain entities (Product, Users, …)
   order/
   order-item/
+  payment/
   product/
+  purchase/
+  purchase-item/
+  sale/
+  sale-item/
+  stock/
+  supplier/
   users/
-  … (purchase, sale, stock, supplier, …)
 ```
 
 > **Note:** The codebase uses `src/<feature>/` rather than `src/modules/<feature>/`. You can rename to `modules/` later if desired; update imports accordingly.
@@ -114,6 +121,7 @@ Includes **Cart**, **CartItem**, **Order**, **OrderItem** in addition to existin
 |--------|------|----------------|
 | GET | `/cart` | Current user’s cart (with items + product relations) |
 | POST | `/cart/items` | Body: `{ productId, quantity }` |
+| DELETE | `/cart` | Clear current user’s cart |
 
 ### Cart item module
 
@@ -157,26 +165,131 @@ Includes **Cart**, **CartItem**, **Order**, **OrderItem** in addition to existin
 | POST | `/orders/checkout` | Checkout current cart → order |
 | GET | `/orders` | List current user’s orders |
 | GET | `/orders/:id` | Order detail + items (scoped to user) |
+| PUT | `/orders/:id/status` | Body: `{ status }` where status is `pending`, `confirmed`, or `cancelled` |
+| DELETE | `/orders/:id` | Delete current user’s order |
 
 ### Order item module
 
 - **Repository / service / controller** under `src/order-item/`
-- **Route:** `GET /order-items/:id` — line detail if the parent order belongs to the user
+- **Routes:** `GET /order-items`, `GET /order-items/:id` — list/detail only for lines whose parent order belongs to the user
 
 ---
 
-## Auth integration for cart / order
+## Auth integration for user-scoped modules
 
 - `src/auth/auth.module.ts` exports **`JwtAuthGuard`** and **`JwtModule`** so feature modules can apply `@UseGuards(JwtAuthGuard)` without duplicate JWT setup.
 - `src/common/decorators/current-user-id.decorator.ts` — `@CurrentUserId()` reads `request.user.userId` (compatible with JWT payload / strategy shape used in this app).
+- Cart, cart item, order, order item, and payment APIs are scoped to the authenticated user.
 
 ---
 
-## Customers module (reference pattern)
+## Product-style CRUD modules
 
-- Entity: `src/entities/customer.entity.ts` (single source of truth; customers feature imports from here)
-- DTOs: `create-customer.dto.ts`, `update-customer.dto.ts` (optional partial fields)
-- Service uses explicit mapping into `repository.create({ ... })` (no `any` DTOs in repository create)
+The following modules now follow the same convention as `product`: controller DTOs, service business logic, repository wrappers, `ParseIntPipe` for route IDs, and relation-aware reads where needed.
+
+### Category
+
+- Entity: `src/entities/category.entity.ts`
+- DTOs: `src/category/dto/create-category.dto.ts`, `update-category.dto.ts`
+- Repository: `src/category/category.repository.ts`
+- Routes: `POST/GET /categories`, `GET/PUT/DELETE /categories/:id`
+
+### Customers
+
+- Entity: `src/entities/customer.entity.ts`
+- DTOs: `src/customers/dto/create-customer.dto.ts`, `update-customer.dto.ts`
+- Repository: `src/customers/customers.repository.ts`
+- Routes: `POST/GET /customers`, `GET/PUT/DELETE /customers/:id`
+
+### Supplier
+
+- Entity: `src/entities/supplier.entity.ts`
+- DTOs: `src/supplier/dto/create-supplier.dto.ts`, `update-supplier.dto.ts`
+- Repository: `src/supplier/supplier.repository.ts`
+- Routes: `POST/GET /suppliers`, `GET/PUT/DELETE /suppliers/:id`
+
+### Stock
+
+- Entity: `src/entities/stock.entity.ts`
+- DTOs: `src/stock/dto/create-stock.dto.ts`, `update-stock.dto.ts`
+- Repository: `src/stock/stock.repository.ts`
+- Service resolves `productId` and rejects missing/inactive products
+- Routes: `POST/GET /stocks`, `GET/PUT/DELETE /stocks/:id`
+
+---
+
+## Purchase & purchase item
+
+### Entities
+
+- `src/entities/purchase.entity.ts` — optional supplier, purchase items, total amount, purchased timestamp
+- `src/entities/purchase.item.entity.ts` — purchase, product, quantity, unit price
+
+### Purchase module
+
+- DTOs: `src/purchase/dto/create-purchase.dto.ts`, `update-purchase.dto.ts`, `purchase-line.dto.ts`
+- Repository: `src/purchase/purchase.repository.ts`
+- Service resolves `supplierId` and nested item `productId` values, computes `totalAmount` server-side, and rejects empty item lists
+- Routes: `POST/GET /purchases`, `GET/PUT/DELETE /purchases/:id`
+
+Create/update body shape:
+
+```json
+{
+  "supplierId": 1,
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 10,
+      "unitPrice": 2000
+    }
+  ]
+}
+```
+
+### Purchase item module
+
+- DTOs: `src/purchase-item/dto/create-purchase-item.dto.ts`, `update-purchase-item.dto.ts`
+- Repository: `src/purchase-item/purchase.item.repository.ts`
+- Service resolves `purchaseId` and `productId`
+- Routes: `POST/GET /purchase-items`, `GET/PUT/DELETE /purchase-items/:id`
+
+---
+
+## Sale & sale item
+
+### Entities
+
+- `src/entities/sale.entity.ts` — sale items, total amount, sold timestamp
+- `src/entities/sale.item.entity.ts` — sale, product, quantity, unit price
+
+### Sale module
+
+- DTOs: `src/sale/dto/create-sale.dto.ts`, `update-sale.dto.ts`, `sale-line.dto.ts`
+- Repository: `src/sale/sale.repository.ts`
+- Service resolves nested item `productId` values, computes `totalAmount` server-side, and rejects empty item lists
+- Routes: `POST/GET /sales`, `GET/PUT/DELETE /sales/:id`
+
+Create/update body shape:
+
+```json
+{
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2,
+      "unitPrice": 2500
+    }
+  ]
+}
+```
+
+### Sale item module
+
+- DTOs: `src/sale-item/dto/create-sale-item.dto.ts`, `update-sale-item.dto.ts`
+- Repository: `src/sale-item/sale.item.repository.ts`
+- Service resolves `saleId` and `productId`
+- Routes: `POST/GET /sale-items`, `GET/PUT/DELETE /sale-items/:id`
 
 ---
 
@@ -190,7 +303,8 @@ Includes **Cart**, **CartItem**, **Order**, **OrderItem** in addition to existin
 
 ## App entry
 
-- `src/main.ts` — global `ValidationPipe`; default port from `process.env.PORT ?? 4000`
+- `src/main.ts` — global `ValidationPipe`; default port from `process.env.PORT ?? 3000`
+- OpenAPI JSON is served at `/api.json`; Swagger UI at `/swagger`; Scalar API Reference at `/reference`
 - `src/app.module.ts` — imports all feature modules including **Cart**, **CartItem**, **Order**, **OrderItem**, **Payment**
 
 ---
@@ -214,7 +328,10 @@ Payments are created **after** the order exists: **Cart → Order → Payment**.
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | `/payments` | Body: `{ orderId, method }` — creates payment; **amount** is always the order’s stored total (never from client). Order must belong to the authenticated user. |
+| GET | `/payments` | List current user’s payments. |
+| GET | `/payments/:id` | Payment detail scoped to the current user. |
 | PUT | `/payments/:id/status` | Body: `{ status, transactionId? }` — updates payment; on `success`, marks order **paid**. Only the **order owner** may call (webhook integration should use a separate guarded route or secret in production). |
+| DELETE | `/payments/:id` | Delete a payment scoped to the current user. |
 
 ### Files
 
@@ -230,7 +347,7 @@ Payments are created **after** the order exists: **Cart → Order → Payment**.
 2. **Security:** ensure `.env` holds strong secrets; never commit `.env`.  
 3. **Indexes:** consider unique constraint “one open cart per user” at DB level if you enforce that invariant.  
 4. **API versioning:** optional `/v1` prefix for public API stability.  
-5. **OpenAPI:** optional `@nestjs/swagger` for contract docs.
+5. **OpenAPI:** keep DTOs current so Swagger/Scalar schemas stay useful.
 
 ---
 
@@ -239,6 +356,14 @@ Payments are created **after** the order exists: **Cart → Order → Payment**.
 | Area | Files |
 |------|--------|
 | Product | `src/product/*`, `src/entities/product.entity.ts`, `src/entities/product-type.enum.ts` |
+| Category | `src/category/*`, `src/entities/category.entity.ts` |
+| Customers | `src/customers/*`, `src/entities/customer.entity.ts` |
+| Supplier | `src/supplier/*`, `src/entities/supplier.entity.ts` |
+| Stock | `src/stock/*`, `src/entities/stock.entity.ts` |
+| Purchase | `src/purchase/*`, `src/entities/purchase.entity.ts` |
+| Purchase item | `src/purchase-item/*`, `src/entities/purchase.item.entity.ts` |
+| Sale | `src/sale/*`, `src/entities/sale.entity.ts` |
+| Sale item | `src/sale-item/*`, `src/entities/sale.item.entity.ts` |
 | Cart | `src/cart/*` |
 | Cart item | `src/cart-item/*` |
 | Order | `src/order/*`, `src/entities/order-status.enum.ts` |

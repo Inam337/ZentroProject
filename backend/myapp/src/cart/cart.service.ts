@@ -77,4 +77,12 @@ export class CartService {
     }
     return refreshed;
   }
+
+  async clearCart(userId: number): Promise<Cart> {
+    const cart = await this.getUserCart(userId);
+    if (cart.items?.length) {
+      await this.cartItemRepo.delete({ cart: { id: cart.id } });
+    }
+    return this.getUserCart(userId);
+  }
 }

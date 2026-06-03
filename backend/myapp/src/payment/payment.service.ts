@@ -46,6 +46,21 @@ export class PaymentService {
     return this.paymentRepository.save(payment);
   }
 
+  async findAllForUser(userId: number): Promise<Payment[]> {
+    return this.paymentRepository.findAllForUser(userId);
+  }
+
+  async findOneForUser(userId: number, paymentId: number): Promise<Payment> {
+    const payment = await this.paymentRepository.findOneForUser(
+      userId,
+      paymentId,
+    );
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+    return payment;
+  }
+
   async updateStatusForUser(
     userId: number,
     paymentId: number,
@@ -77,5 +92,10 @@ export class PaymentService {
     }
 
     return this.paymentRepository.save(payment);
+  }
+
+  async removeForUser(userId: number, paymentId: number): Promise<void> {
+    const payment = await this.findOneForUser(userId, paymentId);
+    await this.paymentRepository.remove(payment);
   }
 }
