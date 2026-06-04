@@ -1,9 +1,8 @@
-'use client';
-
 import * as React from 'react';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
-import { CheckIcon } from 'lucide-react';
 
+import { RbIcon } from '@/components/icons/common/RbIcon';
+import { IconColors } from '@/components/icons/types/RbIcon.types';
 import { cn } from '@/libs/utils';
 
 function Checkbox({
@@ -16,11 +15,14 @@ function Checkbox({
       className={cn(
         'peer h-5 w-5 shrink-0 rounded-sm border border-gray-300',
         'bg-white ring-offset-background',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ',
+        'focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed disabled:opacity-50',
-        'data-[state=checked]:bg-green-700 data-[state=checked]:text-white',
-        'data-[state=checked]:border-green-700',
-        'hover:border-green-700 data-[state=checked]:hover:border-green-700',
+        'data-[state=checked]:bg-primary ',
+        'data-[state=checked]:text-white',
+        'data-[state=checked]:border-primary-700',
+        'hover:border-primary ',
+        'data-[state=checked]:hover:border-primary',
         'transition-colors duration-150',
         'cursor-pointer',
         'relative',
@@ -32,7 +34,11 @@ function Checkbox({
         data-slot="checkbox-indicator"
         className="flex items-center justify-center text-white absolute inset-0"
       >
-        <CheckIcon className="h-4 w-4" />
+        <RbIcon
+          name="checkTick"
+          size={10}
+          color={IconColors.WHITE_COLOR_ICON}
+        />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );

@@ -1,4 +1,4 @@
-export interface LoginRes {
-  access_token: string;
-  refresh_token: string;
-}
+import type { AuthLoginResponse } from './AuthLoginResponse';
+
+/** @deprecated Use AuthLoginResponse — backend returns `token` and `refreshToken` */
+export type LoginRes = AuthLoginResponse;

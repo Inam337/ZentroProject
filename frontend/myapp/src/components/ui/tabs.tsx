@@ -115,12 +115,17 @@ export function TabsTrigger({
     <button
       type="button"
       role="tab"
+      data-state={isActive ? 'active' : 'inactive'}
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium',
+        'inline-flex items-center justify-center whitespace-nowrap',
+        'rounded-sm px-3 py-1.5 text-sm font-medium',
+        'text-foreground',
         'ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2',
         'focus-visible:ring-ring focus-visible:ring-offset-2',
-        'data-[state=active]:bg-background data-[state=active]:text-foreground',
+        'data-[state=active]:bg-background',
+        'data-[state=active]:text-foreground',
         'data-[state=active]:shadow-sm',
+        'hover:bg-muted/50',
         className,
       )}
       onClick={() => onTabChange && onTabChange(tabValue)}
@@ -148,7 +153,7 @@ export function TabsContent({
 
   return (
     <div
-      className={cn('mt-2', className)}
+      className={cn('', className)}
       role="tabpanel"
       aria-labelledby={`tab-${value}`}
     >

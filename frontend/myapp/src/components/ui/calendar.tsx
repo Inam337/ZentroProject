@@ -1,11 +1,9 @@
-'use client';
-
 import * as React from 'react';
 import { DayPicker, getDefaultClassNames } from 'react-day-picker';
 
 import 'react-day-picker/style.css';
-import { CommonIconNames, IconColors } from '@/components/icons/types';
-import { CommonIcon } from '@/components/icons';
+import { RbIcon } from '@/components/icons/common/RbIcon';
+import { IconColors } from '@/components/icons/types/RbIcon.types';
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -31,22 +29,20 @@ function Calendar({ ...props }: CalendarProps) {
         Chevron: ({ orientation }) => {
           if (orientation === 'left') {
             return (
-              <CommonIcon
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-                name={CommonIconNames.ARROW_CHEVRON_LEFT_ICON}
-                fill={IconColors.PRIMARY_COLOR_ICON}
+              <RbIcon
+                name="arrowChevronLeft"
+                size={ICON_SIZE}
+                color={IconColors.PRIMARY_COLOR_ICON}
               />
             );
           }
 
           if (orientation === 'right') {
             return (
-              <CommonIcon
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-                name={CommonIconNames.ARROW_CHEVRON_RIGHT_ICON}
-                fill={IconColors.PRIMARY_COLOR_ICON}
+              <RbIcon
+                name="arrowChevronRight"
+                size={ICON_SIZE}
+                color={IconColors.PRIMARY_COLOR_ICON}
               />
             );
           }

@@ -1,10 +1,30 @@
+import { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
-import { useAuthStore } from '@/stores/auth';
 import { AppConstants } from '@/common/AppConstants';
+import AuthRouteFallback from '@/components/auth/AuthRouteFallback';
+import { getAccessToken } from '@/libs/auth-tokens';
+import { selectIsAuthenticated, useAuthStore } from '@/stores/auth';
 
 export default function PublicRoutes() {
-  const isAuthenticated = useAuthStore(state => state.token != null);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const setHasHydrated = useAuthStore((state) => state.setHasHydrated);
+  const isAuthenticated = useAuthStore(
+    (state) => selectIsAuthenticated(state) || getAccessToken() != null,
+  );
+
+  useEffect(() => {
+    if (useAuthStore.persist.hasHydrated()) {
+      setHasHydrated(true);
+    }
+    return useAuthStore.persist.onFinishHydration(() => {
+      setHasHydrated(true);
+    });
+  }, [setHasHydrated]);
+
+  if (!hasHydrated) {
+    return <AuthRouteFallback />;
+  }
 
   return isAuthenticated
     ? (
@@ -13,5 +33,7 @@ export default function PublicRoutes() {
           replace
         />
       )
-    : <Outlet />;
+    : (
+        <Outlet />
+      );
 }

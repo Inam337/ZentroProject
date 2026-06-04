@@ -1,9 +1,8 @@
-'use client';
-
 import * as React from 'react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
-import { XIcon } from 'lucide-react';
 
+import { RbIcon } from '../icons/common/RbIcon';
+import { IconColors } from '@/components/icons/types/RbIcon.types';
 import { cn } from '@/libs/utils';
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
@@ -79,7 +78,8 @@ function SheetContent({
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
-          `bg-accent-foreground data-[state=open]:animate-in 
+          `bg-white text-foreground 
+          data-[state=open]:animate-in 
           data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 
           shadow-lg transition ease-in-out 
           data-[state=closed]:duration-300 data-[state=open]:duration-500`,
@@ -106,11 +106,14 @@ function SheetContent({
         {children}
         <SheetPrimitive.Close className="ring-offset-background focus:ring-ring
          data-[state=open]:bg-secondary absolute top-4 right-4
-         rounded-xs opacity-70 transition-opacity
-          hover:opacity-100 focus:ring-2
-          focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+         rounded-xs opacity-70 transition-opacity cursor-pointer
+          hover:opacity-100 focus:outline-hidden disabled:pointer-events-none"
         >
-          <XIcon className="size-4" />
+          <RbIcon
+            name="close"
+            size={12}
+            color={IconColors.GRAY_COLOR_ICON}
+          />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
       </SheetPrimitive.Content>

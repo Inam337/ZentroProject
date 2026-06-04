@@ -44,6 +44,16 @@ export class AuthService {
       },
     );
 
+    const refreshSecret =
+      this.configService.get<string>('JWT_REFRESH_SECRET')
+      ?? this.configService.get<string>('JWT_SECRET');
+
+    if (!refreshSecret) {
+      throw new InternalServerErrorException(
+        'JWT_REFRESH_SECRET (or JWT_SECRET) is not configured',
+      );
+    }
+
     const refreshToken = this.jwtService.sign(
       {
         userId,
@@ -51,7 +61,7 @@ export class AuthService {
         isRefreshToken: true,
       },
       {
-        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+        secret: refreshSecret,
         expiresIn: refreshExpires,
       },
     );
@@ -79,7 +89,8 @@ export class AuthService {
         name,
         email,
         password: hashedPassword,
-        role: 'user', // Default role
+        role: 'user',
+        status: true,
       });
       console.log('User entity created:', { name, email });
 
@@ -175,8 +186,16 @@ export class AuthService {
   async refreshToken(refreshToken: string) {
     try {
       // Verify refresh token
+      const refreshSecret =
+        this.configService.get<string>('JWT_REFRESH_SECRET')
+        ?? this.configService.get<string>('JWT_SECRET');
+
+      if (!refreshSecret) {
+        throw new UnauthorizedException('Refresh token is not configured');
+      }
+
       const payload = this.jwtService.verify(refreshToken, {
-        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+        secret: refreshSecret,
       });
 
       // Check if it's a refresh token
