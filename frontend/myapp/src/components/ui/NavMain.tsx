@@ -15,7 +15,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/Sidebar';
-import { RbIcon } from '../icons/common/RbIcon';
+import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 import type { MenuItem } from '@/common/MenuData';
 

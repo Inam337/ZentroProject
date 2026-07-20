@@ -3,6 +3,21 @@ const Routes = {
   Private: {
     Dashboard: '/dashboard',
     Profile: '/profile',
+    Products: '/products',
+    Categories: '/categories',
+    Cart: '/cart',
+    Checkout: '/checkout',
+    Orders: '/orders',
+    Admin: {
+      Categories: '/admin/categories',
+      Products: '/admin/products',
+      Suppliers: '/admin/suppliers',
+      Stock: '/admin/stock',
+      Purchases: '/admin/purchases',
+      Sales: '/admin/sales',
+      Customers: '/admin/customers',
+      Users: '/admin/users',
+    },
   },
   Public: {
     Login: '/login',
@@ -61,6 +76,11 @@ const ApiUrlBuilders = {
   payment: (id: number | string) => `${ApiUrls.Payments}/${id}`,
   paymentStatus: (id: number | string) => `${ApiUrls.Payments}/${id}/status`,
 };
+/** Frontend route builders — use in Link/navigate, not for API */
+const RouteBuilders = {
+  product: (id: number | string) => `${Routes.Private.Products}/${id}`,
+  order: (id: number | string) => `${Routes.Private.Orders}/${id}`,
+};
 const Validations = {
   Email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   PasswordLength: 6,
@@ -77,6 +97,7 @@ const Strings = {
 
 export const AppConstants = {
   Routes,
+  RouteBuilders,
   ApiUrls,
   ApiUrlBuilders,
   Validations,

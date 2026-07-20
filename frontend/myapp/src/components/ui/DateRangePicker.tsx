@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/Popover';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { RbIcon } from '../icons/common/RbIcon';
+import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 interface DateRangePickerProps {
   className?: string;

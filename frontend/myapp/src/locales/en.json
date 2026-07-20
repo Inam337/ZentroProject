@@ -1,4 +1,7 @@
 {
+  "i18n": {
+    "language": "Language"
+  },
   "app": {
     "title": "Zentro",
     "description": "Zentro Shop Management System",
@@ -159,7 +162,16 @@
     "ordersList": "Order list",
     "checkout": "Checkout",
     "account": "Account",
-    "logout": "Log out"
+    "logout": "Log out",
+    "admin": "Admin",
+    "adminCategories": "Manage categories",
+    "adminProducts": "Manage products",
+    "adminStock": "Stock",
+    "adminSuppliers": "Suppliers",
+    "adminPurchases": "Purchases",
+    "adminSales": "Sales (POS)",
+    "adminCustomers": "Customers",
+    "adminUsers": "Users"
   },
   "sidebar": {
     "collapse": "Collapse",
@@ -177,6 +189,171 @@
   "pages": {
     "dashboard": {
       "welcome": "Welcome back. Use the sidebar to navigate."
+    }
+  },
+  "commerce": {
+    "loading": "Loading...",
+    "retry": "Try again",
+    "empty": "Nothing to show yet.",
+    "cart": "Cart",
+    "checkout": "Checkout",
+    "productDetail": "Product details",
+    "orderDetail": "Order details",
+    "browseProducts": "Browse products",
+    "continueShopping": "Continue shopping",
+    "each": "each",
+    "remove": "Remove",
+    "subtotal": "Subtotal",
+    "orderSummary": "Order summary",
+    "pricesFromServer": "Prices are loaded from the server when you checkout.",
+    "clearCart": "Clear cart",
+    "reviewOrder": "Review your order",
+    "estimatedTotal": "Estimated total",
+    "placeOrder": "Place order",
+    "backToCart": "Back to cart",
+    "backToOrders": "Back to orders",
+    "viewOrder": "View",
+    "orderNumber": "Order #{id}",
+    "items": "items",
+    "paid": "Paid",
+    "lineItems": "Items",
+    "product": "Product",
+    "payment": "Payment",
+    "method": "Method",
+    "status": "Status",
+    "amount": "Amount",
+    "selectPaymentMethod": "Payment method",
+    "payNow": "Pay now",
+    "paymentCreated": "Payment created. Status: {status}",
+    "allCategories": "All",
+    "addToCart": "Add to cart",
+    "goToCart": "Go to cart",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "type": "Type",
+    "stock": "Stock",
+    "backToProducts": "Back to products",
+    "addedToCart": "Added to your cart.",
+    "stockAvailable": "{count} in stock",
+    "outOfStock": "Out of stock",
+    "viewProduct": "View details",
+    "categoryProductCount": "{count} products",
+    "browseCategory": "Browse products",
+    "products.empty": "No products found.",
+    "categories.empty": "No categories yet.",
+    "cart.empty": "Your cart is empty. Browse products to get started.",
+    "checkout.emptyCart": "Add items to your cart before checkout.",
+    "orders.empty": "No orders yet. Checkout from your cart to create one.",
+    "dashboard": {
+      "welcome": "Welcome to Zentro Shop",
+      "productsHint": "Browse the catalog and add items to your cart.",
+      "cartHint": "Review quantities and proceed to checkout.",
+      "ordersHint": "Track order status and complete payment."
+    }
+  },
+  "admin": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "inactive": "Inactive",
+    "active": "Active",
+    "email": "Email",
+    "phone": "Phone",
+    "password": "Password",
+    "newPasswordOptional": "New password (optional)",
+    "passwordRequired": "Password is required for new users",
+    "customerFormRequired": "Name, email, and phone are required",
+    "userFormRequired": "Name and email are required",
+    "addCustomer": "Add customer",
+    "editCustomer": "Edit customer",
+    "newCustomer": "New customer",
+    "addUser": "Add user",
+    "editUser": "Edit user",
+    "newUser": "New user",
+    "name": "Name",
+    "description": "Description",
+    "price": "Price",
+    "unit": "Unit",
+    "type": "Type",
+    "category": "Category",
+    "noCategory": "None",
+    "reorderLevel": "Reorder level",
+    "product": "Product",
+    "quantity": "Qty",
+    "unitPrice": "Unit price",
+    "location": "Location",
+    "supplier": "Supplier",
+    "contact": "Contact",
+    "address": "Address",
+    "lineItems": "Line items",
+    "addLine": "Add line",
+    "removeLine": "Remove line",
+    "noProductsForLines": "Add products to the catalog before creating line items.",
+    "nameRequired": "Name is required",
+    "productFormRequired": "Name, price, and unit are required",
+    "stockFormRequired": "Product and location are required",
+    "purchaseFormRequired": "Supplier and at least one line item are required",
+    "saleFormRequired": "At least one line item is required",
+    "confirmDelete": "Delete this item?",
+    "confirmDeactivateProduct": "Deactivate this product? It will be hidden from the shop catalog.",
+    "addCategory": "Add category",
+    "editCategory": "Edit category",
+    "newCategory": "New category",
+    "addProduct": "Add product",
+    "editProduct": "Edit product",
+    "newProduct": "New product",
+    "addSupplier": "Add supplier",
+    "editSupplier": "Edit supplier",
+    "newSupplier": "New supplier",
+    "addStock": "Add stock",
+    "editStock": "Edit stock",
+    "newStock": "New stock entry",
+    "addPurchase": "Record purchase",
+    "newPurchase": "New purchase",
+    "purchaseNumber": "Purchase #{id}",
+    "addSale": "Record sale",
+    "newSale": "New sale",
+    "saleNumber": "Sale #{id}",
+    "categories": {
+      "empty": "No categories yet. Create one to organize products.",
+      "hint": "Manage catalog categories used when creating products."
+    },
+    "products": {
+      "empty": "No active products. Create one for the catalog.",
+      "hint": "Create and edit products. Delete soft-deactivates (hidden from shop)."
+    },
+    "suppliers": {
+      "empty": "No suppliers yet.",
+      "hint": "Suppliers are linked when recording purchases."
+    },
+    "stock": {
+      "empty": "No stock entries yet.",
+      "hint": "Track quantity per product and warehouse location."
+    },
+    "purchases": {
+      "empty": "No purchases recorded yet.",
+      "hint": "Create purchases with nested items; totals are computed server-side."
+    },
+    "sales": {
+      "empty": "No POS sales recorded yet.",
+      "hint": "Record in-store sales with line items; total is computed server-side."
+    },
+    "customers": {
+      "empty": "No B2B customers yet.",
+      "hint": "Maintain B2B customer records (name, email, phone, address)."
+    },
+    "users": {
+      "empty": "No app users listed yet.",
+      "hint": "Manage login accounts. Roles are assigned by the backend (default user)."
+    },
+    "dashboard": {
+      "title": "Admin tools",
+      "productsHint": "Create and edit catalog products.",
+      "stockHint": "Warehouse quantities by location.",
+      "purchasesHint": "Record supplier purchases."
     }
   },
   "auth": {

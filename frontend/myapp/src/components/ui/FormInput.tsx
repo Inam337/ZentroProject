@@ -1,29 +1,39 @@
 import * as React from 'react';
 
-import { cn } from '@/libs/utils';
+import FieldError from '@/components/ui/FieldError';
 import { Input } from '@/components/ui/Input';
+import { fieldInvalidClass, fieldLabelClass, hasFieldError } from '@/components/ui/form-field-styles';
+import { cn } from '@/libs/utils';
 
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
+  label?: React.ReactNode;
 }
 
 const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
-  ({ className, error, ...props }, ref) => {
+  ({ className, error, label, id, ...props }, ref) => {
+    const invalid = hasFieldError(error);
+
     return (
       <div className="space-y-1">
+        {label
+          ? (
+              <label
+                htmlFor={id}
+                className={fieldLabelClass}
+              >
+                {label}
+              </label>
+            )
+          : null}
         <Input
-          className={cn(
-            error && 'border-red-500 focus-visible:ring-red-500',
-            className,
-          )}
+          id={id}
+          aria-invalid={invalid || undefined}
+          className={cn(invalid && fieldInvalidClass, className)}
           ref={ref}
           {...props}
         />
-        {error && (
-          <p className="text-sm text-red-500">
-            {error}
-          </p>
-        )}
+        <FieldError msg={error} />
       </div>
     );
   },

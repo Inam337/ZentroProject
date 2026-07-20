@@ -107,73 +107,52 @@ export default function Profile() {
           className="flex flex-col space-y-4"
           noValidate
         >
-          <div>
-            <label
-              className="text-sm font-medium"
-              htmlFor="currentPassword"
-            >
-              {i18nT(
-                'auth.profile.changePassword.currentPasswordLabel',
-                'Current password',
-              )}
-            </label>
-            <PasswordInput
-              name="currentPassword"
-              register={register}
-              className="mt-1"
-              placeholder={i18nT(
-                'auth.profile.changePassword.currentPasswordPlaceholder',
-                'Enter current password',
-              )}
-            />
-            <FieldError msg={errors.currentPassword?.message} />
-          </div>
+          <PasswordInput
+            name="currentPassword"
+            id="currentPassword"
+            label={i18nT(
+              'auth.profile.changePassword.currentPasswordLabel',
+              'Current password',
+            )}
+            register={register}
+            error={errors.currentPassword?.message}
+            placeholder={i18nT(
+              'auth.profile.changePassword.currentPasswordPlaceholder',
+              'Enter current password',
+            )}
+          />
 
-          <div>
-            <label
-              className="text-sm font-medium"
-              htmlFor="newPassword"
-            >
-              {i18nT(
-                'auth.profile.changePassword.newPasswordLabel',
-                'New password',
-              )}
-            </label>
-            <PasswordInput
-              name="newPassword"
-              register={register}
-              className="mt-1"
-              placeholder={i18nT(
-                'auth.profile.changePassword.newPasswordPlaceholder',
-                'Enter new password',
-              )}
-            />
-            <FieldError msg={errors.newPassword?.message} />
-          </div>
+          <PasswordInput
+            name="newPassword"
+            id="newPassword"
+            label={i18nT(
+              'auth.profile.changePassword.newPasswordLabel',
+              'New password',
+            )}
+            register={register}
+            error={errors.newPassword?.message}
+            placeholder={i18nT(
+              'auth.profile.changePassword.newPasswordPlaceholder',
+              'Enter new password',
+            )}
+          />
 
-          <div>
-            <label
-              className="text-sm font-medium"
-              htmlFor="confirmNewPassword"
-            >
-              {i18nT(
-                'auth.profile.changePassword.confirmPasswordLabel',
-                'Confirm new password',
-              )}
-            </label>
-            <PasswordInput
-              name="confirmNewPassword"
-              register={register}
-              className="mt-1"
-              placeholder={i18nT(
-                'auth.profile.changePassword.confirmPasswordPlaceholder',
-                'Re-enter new password',
-              )}
-            />
-            <FieldError msg={errors.confirmNewPassword?.message} />
-          </div>
+          <PasswordInput
+            name="confirmNewPassword"
+            id="confirmNewPassword"
+            label={i18nT(
+              'auth.profile.changePassword.confirmPasswordLabel',
+              'Confirm new password',
+            )}
+            register={register}
+            error={errors.confirmNewPassword?.message}
+            placeholder={i18nT(
+              'auth.profile.changePassword.confirmPasswordPlaceholder',
+              'Re-enter new password',
+            )}
+          />
 
-          <FieldError msg={error} />
+          <FieldError msg={error} variant="form" />
 
           {success ? (
             <p

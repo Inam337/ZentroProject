@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/Avatar';
 import { useSidebar } from '@/components/ui/Sidebar';
 import {
   SidebarMenu,
@@ -17,35 +16,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
-import { useAuthStore } from '@/stores/authStore';
-import { useRolePermissionStore } from '@/stores/rolePermissionStore';
+import { useAuthStore } from '@/stores/auth';
 import { AppConstants } from '@/common/AppConstants';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/libs/utils';
-import { RbIcon } from '../icons/common/RbIcon';
+import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 
 export function NavUser() {
   const { t } = useTranslation();
   const { state, isMobile } = useSidebar();
-  const { logout, userEmail, userName, fetchUserAttributes } = useAuthStore();
-  const { resetUserPermissionsFetch } = useRolePermissionStore();
+  const { logout, user } = useAuthStore();
   const navigate = useNavigate();
   const isMobileDevice = useIsMobile();
   const isCollapsed = state === 'collapsed';
   const ICON_SIZE = 16;
-
-  // Fetch user attributes from Cognito on component mount
-  useEffect(() => {
-    // Only fetch if we don't have user data yet
-    if (!userEmail) {
-      fetchUserAttributes();
-    }
-  }, [userEmail, fetchUserAttributes]);
-
-  const handleLogout = async () => {
-    await logout(); // Clear token first to prevent any permission fetches
-    resetUserPermissionsFetch(); // Reset permissions fetch flag to allow re-fetching on next login
+  const userName = user?.name ?? 'User';
+  const userEmail = user?.email ?? '';
+  const handleLogout = () => {
+    logout();
     navigate(AppConstants.Routes.Public.Login);
   };
 
@@ -55,7 +44,7 @@ export function NavUser() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
-              tooltip={isCollapsed ? (userEmail || 'Loading...') : undefined}
+              tooltip={isCollapsed ? (userEmail || 'User') : undefined}
               size="lg"
               className={cn(
                 'w-full data-[state=open]:bg-sidebar-accent',
@@ -63,44 +52,20 @@ export function NavUser() {
                 isCollapsed && 'justify-center',
               )}
             >
-              <Avatar className={cn('h-9 w-9 rounded-full overflow-hidden border border-gray-100', isCollapsed && 'mx-auto')}>
-                {localStorage.getItem('profileImageUrl') != ''
-                  ? (
-                      <AvatarImage
-                        src={localStorage.getItem('profileImageUrl')}
-                        alt="Profile"
-                        className="object-cover"
-                      />
-                    )
-                  : (
-                      <AvatarFallback className="bg-blue-600 text-white">
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          />
-                        </svg>
-                      </AvatarFallback>
-                    )}
-
+              <Avatar
+                className={cn(
+                  'h-9 w-9 overflow-hidden rounded-full border border-gray-100',
+                  isCollapsed && 'mx-auto',
+                )}
+              >
+                <AvatarFallback className="bg-blue-600 text-white">
+                  {userName.charAt(0).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               {!isCollapsed && (
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-normal text-white">
-                    {
-                      localStorage.getItem('fullName') != ''
-                        ? localStorage.getItem('fullName')
-                        : userName || 'User'
-                    }
-                  </span>
-                  <span className="truncate text-xs text-white/80 ">{userEmail || 'Loading...'}</span>
+                  <span className="truncate font-normal text-white">{userName}</span>
+                  <span className="truncate text-xs text-white/80">{userEmail}</span>
                 </div>
               )}
             </SidebarMenuButton>
@@ -114,51 +79,25 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5">
                 <Avatar className="h-8 w-8">
-                  {localStorage.getItem('profileImageUrl') != ''
-                    ? (
-                        <AvatarImage
-                          src={localStorage.getItem('profileImageUrl')}
-                          alt="Profile"
-                          className="object-cover"
-                        />
-                      )
-                    : (
-                        <AvatarFallback className="bg-blue-600 text-white">
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            />
-                          </svg>
-                        </AvatarFallback>
-                      )}
+                  <AvatarFallback className="bg-blue-600 text-white">
+                    {userName.charAt(0).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-sm leading-tight">
-                  <span className="truncate font-semibold">
-                    { localStorage.getItem('fullName') != ''
-                      ? localStorage.getItem('fullName')
-                      : userName || 'User'}
-                  </span>
-                  <span className="truncate text-xs text-muted-foreground">{userEmail || 'Loading...'}</span>
+                  <span className="truncate font-semibold">{userName}</span>
+                  <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-gray-200" />
 
-            <DropdownMenuItem onClick={() => navigate(AppConstants.Routes.Private.Settings)}>
+            <DropdownMenuItem onClick={() => navigate(AppConstants.Routes.Private.Profile)}>
               <RbIcon
                 name="settings"
                 size={ICON_SIZE}
                 color={IconColors.GRAY_COLOR_ICON}
               />
-              <span>{t('pages.settings.title')}</span>
+              <span>{t('menu.profile')}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

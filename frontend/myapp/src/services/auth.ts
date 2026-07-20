@@ -16,9 +16,11 @@ function toAuthError(error: unknown, fallback: string): string {
     if (parsed.message.toLowerCase().includes('inactive')) {
       return 'auth.login.errors.inactiveAccount';
     }
+
     if (parsed.message.toLowerCase().includes('current password')) {
       return 'auth.profile.errors.incorrectCurrentPassword';
     }
+
     return 'auth.login.errors.invalidCredentials';
   }
 

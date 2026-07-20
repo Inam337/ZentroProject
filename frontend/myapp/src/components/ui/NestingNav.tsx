@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useIntl } from 'react-intl';
-import { ChevronDown } from 'lucide-react';
 
 import type { MenuItem } from '@/common/MenuData';
+import { ChevronDown } from '@/components/icons/FluentIcons';
 import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
+import { useT } from '@/hooks/use-t';
 import { cn } from '@/libs/utils';
 
 type NestingNavProps = {
@@ -15,7 +15,15 @@ type NestingNavProps = {
 };
 
 function isPathActive(pathname: string, url: string): boolean {
-  return pathname === url;
+  if (pathname === url) {
+    return true;
+  }
+
+  if (url !== '/' && pathname.startsWith(`${url}/`)) {
+    return true;
+  }
+
+  return false;
 }
 
 function hasActiveChild(pathname: string, item: MenuItem): boolean {
@@ -23,7 +31,7 @@ function hasActiveChild(pathname: string, item: MenuItem): boolean {
 }
 
 export function NestingNav({ items, collapsed, onNavigate }: NestingNavProps) {
-  const intl = useIntl();
+  const { t } = useT();
   const location = useLocation();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [flyoutKey, setFlyoutKey] = useState<string | null>(null);
@@ -54,7 +62,7 @@ export function NestingNav({ items, collapsed, onNavigate }: NestingNavProps) {
   return (
     <nav className={cn('flex flex-col gap-1', collapsed ? 'px-1' : 'px-2')}>
       {items.map((item) => {
-        const label = intl.formatMessage({ id: item.title, defaultMessage: item.title });
+        const label = t(item.title, item.title);
         const hasChildren = Boolean(item.items?.length);
         const childActive = hasActiveChild(location.pathname, item);
         const parentActive = isPathActive(location.pathname, item.url) && !childActive;
@@ -119,7 +127,7 @@ export function NestingNav({ items, collapsed, onNavigate }: NestingNavProps) {
                             isPathActive(location.pathname, sub.url) && 'bg-white/15 font-medium',
                           )}
                         >
-                          {intl.formatMessage({ id: sub.title, defaultMessage: sub.title })}
+                          {t(sub.title, sub.title)}
                         </Link>
                       ))}
                     </div>
@@ -170,7 +178,7 @@ export function NestingNav({ items, collapsed, onNavigate }: NestingNavProps) {
                           isPathActive(location.pathname, sub.url) && 'bg-white/15 font-medium',
                         )}
                       >
-                        {intl.formatMessage({ id: sub.title, defaultMessage: sub.title })}
+                        {t(sub.title, sub.title)}
                       </Link>
                     ))}
                   </div>

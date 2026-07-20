@@ -2,6 +2,8 @@
 
 This document is the step-by-step integration plan for connecting **`frontend/myapp`** to the NestJS API in **`backend/myapp`**. Work is organized as **user stories** by phase. Complete phases in order unless your team explicitly parallelizes after Phase 2.
 
+**Per-phase implementation context (what was built, key files, verify commands):** [`phases/README.md`](./phases/README.md) · [`docs/README.md`](./README.md)
+
 **Authoritative API reference:** [`backend/myapp/docs/api-reference.md`](../../backend/myapp/docs/api-reference.md)  
 **Interactive API docs:** `http://localhost:3000/reference` (Scalar), `http://localhost:3000/swagger`
 
@@ -96,7 +98,7 @@ flowchart TB
 
 ## Phase 0 — Prerequisites and verification ✅
 
-> **Status:** Complete. Runbook: [`dev-setup.md`](./dev-setup.md).
+> **Status:** Complete. Context: [`phases/00-prerequisites.md`](./phases/00-prerequisites.md) · Runbook: [`dev-setup.md`](./dev-setup.md).
 
 **Cross-origin decision:** **Option A — NestJS CORS** in `backend/myapp/src/main.ts` (not a Vite proxy). Dev origins: `localhost:5173`, `127.0.0.1:5173`, `localhost:4173`. Production: set `CORS_ORIGINS` + `VITE_API_BASE_URL` at build time.
 
@@ -145,7 +147,7 @@ flowchart TB
 
 ## Phase 1 — HTTP client and environment foundation ✅
 
-> **Status:** Complete. Key files: `libs/api-config.ts`, `libs/auth-tokens.ts`, `libs/axios.ts`, `common/AppConstants.ts`.
+> **Status:** Complete. Context: [`phases/01-http-foundation.md`](./phases/01-http-foundation.md).
 
 ### US-1.1 — Align environment variables
 
@@ -231,7 +233,7 @@ flowchart TB
 
 ## Phase 2 — Authentication and session ✅
 
-> **Auth module:** `src/pages/accounts/`, `src/services/auth.ts`, `src/stores/auth.ts`, `src/validation-schemas/`, `src/locales/en.json`
+> **Status:** Complete. Context: [`phases/02-authentication.md`](./phases/02-authentication.md).
 
 ### US-2.1 — Fix login integration end-to-end
 
@@ -327,7 +329,9 @@ flowchart TB
 
 ---
 
-## Phase 3 — API layer scaffolding (all domains)
+## Phase 3 — API layer scaffolding (all domains) ✅
+
+> **Status:** Complete. Context: [`phases/03-api-layer.md`](./phases/03-api-layer.md).
 
 ### US-3.1 — TypeScript models per resource
 
@@ -341,7 +345,8 @@ flowchart TB
 
 **Acceptance criteria**
 
-- [ ] No `any` in service return types for CRUD operations.
+- [x] Models and enums exported from `models/index.ts`.
+- [x] No `any` in service return types for CRUD operations.
 
 ---
 
@@ -379,8 +384,8 @@ export async function listProducts(): Promise<Product[]> {
 
 **Acceptance criteria**
 
-- [ ] Each service uses `apiClient` only (no `fetch` duplication).
-- [ ] List/get/create/update/delete names are consistent (`listProducts`, `getProduct`, `createProduct`, …).
+- [x] Each service uses `apiClient` only (no `fetch` duplication).
+- [x] List/get/create/update/delete names are consistent (`listProducts`, `getProduct`, `createProduct`, …).
 
 ---
 
@@ -400,7 +405,28 @@ export async function listProducts(): Promise<Product[]> {
 
 ---
 
-## Phase 4 — Commerce flows (customer-facing)
+## Phase 4 — Commerce flows (customer-facing) ✅
+
+> **Status:** Complete. Context: [`phases/04-commerce.md`](./phases/04-commerce.md).
+
+### Private routes (storefront)
+
+| Screen | URL | Page component |
+|--------|-----|----------------|
+| Dashboard (shop home) | `/dashboard` | `pages/Dashboard.tsx` |
+| Product catalog | `/products` | `pages/commerce/ProductsPage.tsx` |
+| Product detail | `/products/:id` | `pages/commerce/ProductDetailPage.tsx` |
+| Categories | `/categories` | `pages/commerce/CategoriesPage.tsx` |
+| Cart | `/cart` | `pages/commerce/CartPage.tsx` |
+| Checkout | `/checkout` | `pages/commerce/CheckoutPage.tsx` |
+| Order history | `/orders` | `pages/commerce/OrdersPage.tsx` |
+| Order + payment | `/orders/:id` | `pages/commerce/OrderDetailPage.tsx` |
+
+**Layout:** All private routes render inside `MainLayout` (`AppSidebar` + header with `HeaderCartLink` + `HeaderProfileDropdown`). Cart count loads on layout mount via `useCartStore.fetchCart()`.
+
+**Manual happy path (after `pnpm run seed:demo`):** Login as `shopper@zentro.demo` → `/products` → add item → `/cart` → `/checkout` → place order → `/orders/:id` → pay (COD/Stripe/JazzCash/EasyPaisa). See [`dev-setup.md`](./dev-setup.md) and [`seed.md`](./seed.md).
+
+---
 
 ### US-4.1 — Product catalog (browse)
 
@@ -411,12 +437,16 @@ export async function listProducts(): Promise<Product[]> {
 **Tasks**
 
 - Service methods with relations returned by backend (category, stock).
-- Dashboard or new `/products` page: grid/list, filters by category, show price and stock hints.
+- `/products` grid with category filter chips (`?categoryId=`); `/products/:id` detail with stock hints.
+
+**Implemented**
+
+- `ProductCard`, `ProductsPage`, `ProductDetailPage`, `libs/format-money.ts`, `libs/product-stock.ts`.
 
 **Acceptance criteria**
 
-- [ ] Only active products shown (backend filters `isActive`; inactive hidden server-side).
-- [ ] Product detail shows description, SKU, unit, price.
+- [x] Only active products shown (backend filters `isActive`; inactive hidden server-side).
+- [x] Product detail shows description, SKU, unit, price.
 
 ---
 
@@ -428,13 +458,17 @@ export async function listProducts(): Promise<Product[]> {
 
 **Tasks**
 
-- Cart store or React Query-style cache (optional); sync on add/update/remove.
-- UI: cart badge, line quantities, remove line, clear cart.
+- Zustand `stores/cart.ts`; sync on add/update/remove/clear.
+- UI: `HeaderCartLink` badge, `CartPage` line quantities, remove line, clear cart.
+
+**Implemented**
+
+- `addToCart({ productId, quantity })` only — no client price. Cart resets on logout.
 
 **Acceptance criteria**
 
-- [ ] Adding product uses server-side price from DB (do not send client price).
-- [ ] Cart loads for current user only (JWT scoped).
+- [x] Adding product uses server-side price from DB (do not send client price).
+- [x] Cart loads for current user only (JWT scoped).
 
 ---
 
@@ -446,13 +480,13 @@ export async function listProducts(): Promise<Product[]> {
 
 **Tasks**
 
-- Checkout button calls checkout; handle empty cart errors.
-- Order history page: list orders, status enum (`pending`, `confirmed`, `cancelled`).
+- `CheckoutPage` calls `checkout()` (`POST /orders/checkout`); empty cart shows `CommercePageState`.
+- `OrdersPage` lists orders with `StatusBadge`; `OrderDetailPage` shows line items.
 
 **Acceptance criteria**
 
-- [ ] Successful checkout clears cart items server-side and shows new order.
-- [ ] Order detail lists line items with price snapshot.
+- [x] Successful checkout clears cart items server-side and shows new order.
+- [x] Order detail lists line items with price snapshot.
 
 ---
 
@@ -465,15 +499,36 @@ export async function listProducts(): Promise<Product[]> {
 **Tasks**
 
 - Payment method enum: `cod`, `stripe`, `jazzcash`, `easypaisa`.
-- UI flow after checkout: select method, create payment, show status.
+- `OrderDetailPage`: select method → `createPayment({ orderId, method })` → show status via `CommercePageState` / `FieldError`.
 
 **Acceptance criteria**
 
-- [ ] Payment tied to owned order only; 403/404 handled gracefully.
+- [x] Payment tied to owned order only; 403/404 handled gracefully.
 
 ---
 
-## Phase 5 — Admin / inventory (back-office)
+## Phase 5 — Admin / inventory (back-office) ✅
+
+> **Status:** Complete. Context: [`phases/05-admin.md`](./phases/05-admin.md).
+
+**Login as admin:** `admin@zentro.demo` / `ShopDemo123!` — sidebar **Admin** section and `/admin/*` routes are hidden for `user` role.
+
+### Admin routes
+
+| Screen | URL | Page |
+|--------|-----|------|
+| Categories CRUD | `/admin/categories` | `AdminCategoriesPage` |
+| Products CRUD | `/admin/products` | `AdminProductsPage` |
+| Stock | `/admin/stock` | `AdminStockPage` |
+| Suppliers | `/admin/suppliers` | `AdminSuppliersPage` |
+| Purchases | `/admin/purchases` | `AdminPurchasesPage` |
+| Sales (POS) | `/admin/sales` | `AdminSalesPage` |
+| Customers | `/admin/customers` | `AdminCustomersPage` |
+| Users | `/admin/users` | `AdminUsersPage` |
+
+Non-admin users hitting `/admin/*` are redirected to `/dashboard`.
+
+---
 
 ### US-5.1 — Categories CRUD
 
@@ -483,7 +538,7 @@ export async function listProducts(): Promise<Product[]> {
 
 **Acceptance criteria**
 
-- [ ] List with products relation optional in UI; create/edit forms use DTO shape `{ name, description }`.
+- [x] List with products relation optional in UI; create/edit forms use DTO shape `{ name, description }`.
 
 ---
 
@@ -495,8 +550,8 @@ export async function listProducts(): Promise<Product[]> {
 
 **Acceptance criteria**
 
-- [ ] `type` enum: `goods`, `service`, `digital`.
-- [ ] `categoryId` selector from categories service.
+- [x] `type` enum: `goods`, `service`, `digital`.
+- [x] `categoryId` selector from categories service.
 
 ---
 
@@ -508,8 +563,8 @@ export async function listProducts(): Promise<Product[]> {
 
 **Acceptance criteria**
 
-- [ ] Create purchase with nested `items[]`; totals computed server-side.
-- [ ] Stock entries linked to `productId` and `location`.
+- [x] Create purchase with nested `items[]`; totals computed server-side.
+- [x] Stock entries linked to `productId` and `location`.
 
 ---
 
@@ -521,7 +576,7 @@ export async function listProducts(): Promise<Product[]> {
 
 **Acceptance criteria**
 
-- [ ] Create sale with nested items; server recalculates total.
+- [x] Create sale with nested items; server recalculates total.
 
 ---
 
@@ -533,11 +588,15 @@ export async function listProducts(): Promise<Product[]> {
 
 **Acceptance criteria**
 
-- [ ] CRUD screens behind role guard if backend adds roles later.
+- [x] CRUD screens behind role guard (`AdminRoutes` + `roles: ['admin']` on menu).
+
+**Implemented:** `AdminCustomersPage`, `AdminUsersPage` at `/admin/customers`, `/admin/users`.
 
 ---
 
-## Phase 6 — Routing, layout, and navigation
+## Phase 6 — Routing, layout, and navigation ✅
+
+> **Status:** Complete. Context: [`phases/06-routing.md`](./phases/06-routing.md) · Route map: [`routes.md`](./routes.md).
 
 ### US-6.1 — Expand `AppRoutes` for new features
 
@@ -546,12 +605,23 @@ export async function listProducts(): Promise<Product[]> {
 **Tasks**
 
 - Extend `AppConstants.Routes` with Private routes: e.g. `/products`, `/cart`, `/orders`, `/orders/:id`, admin section.
-- Register routes under `PrivateRoutes` + `LayoutPrivate`.
-- Sidebar/nav links in `LayoutPrivate` / `sidebar.tsx`.
+- Register routes under `PrivateRoutes` + `MainLayout`.
+- Sidebar/nav links in `AppSidebar` / `MenuData.ts`.
+
+**Done**
+
+- [x] `AppConstants.Routes.Private.*` and `RouteBuilders.product` / `RouteBuilders.order`.
+- [x] Commerce routes in `routes/AppRoutes.tsx`; private `*` → `/dashboard`.
+- [x] `MenuData.ts` catalog + orders + admin submenu; header cart link.
+- [x] Admin URLs under `/admin/*` (including customers + users) with `AdminRoutes` role guard.
+- [x] `RootRedirect` for `/` and global `*` (dashboard if authenticated, else login).
+- [x] `NestingNav` active state for detail routes (`/products/:id`, `/orders/:id`).
 
 **Acceptance criteria**
 
-- [ ] Deep links work; unauthenticated access redirects to login.
+- [x] Storefront and admin deep links work; unauthenticated access redirects to login.
+- [x] Non-admin users cannot access `/admin/*`.
+- [x] Full route table documented in [`routes.md`](./routes.md).
 
 ---
 
@@ -564,22 +634,36 @@ export async function listProducts(): Promise<Product[]> {
 - Read `user.role` from auth store after login.
 - Gate admin route group (optional until backend enforces roles on APIs).
 
+**Implemented**
+
+- `common/Roles.ts`: `user` (default shopper), `admin` (back-office).
+- `useFilteredMenu` filters `MenuItem.roles`; `useIsAdmin` / `AdminRoutes` gate `/admin/*`.
+
 **Acceptance criteria**
 
-- [ ] Documented role strings match backend (`user.role` default `'user'`).
+- [x] Documented role strings match backend (`user.role` default `'user'`).
 
 ---
 
-## Phase 7 — Production, quality, and observability
+## Phase 7 — Production, quality, and observability ✅
+
+> **Status:** Complete. Context: [`phases/07-production.md`](./phases/07-production.md) · [`production.md`](./production.md) · [`regression.md`](./regression.md) · CI: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)
 
 ### US-7.1 — Production build and env
 
 **As a** release engineer, **I want** production env injected at build time **so that** the SPA talks to the correct API.
 
+**Implemented**
+
+- `.env.production` — `VITE_API_BASE_URL` (required at build)
+- `scripts/verify-production-build.mjs` — build + assert API URL in `dist/assets/*.js`
+- `getApiBaseUrl()` throws if production build lacks `VITE_API_BASE_URL`
+- GitHub Actions `frontend-build` job sets `VITE_API_BASE_URL` and runs `verify:build`
+
 **Acceptance criteria**
 
-- [ ] CI sets `VITE_API_BASE_URL` for production builds.
-- [ ] Smoke test: login + one authenticated call against staging API.
+- [x] CI sets `VITE_API_BASE_URL` for production builds.
+- [x] Smoke test: login + authenticated flows via `verify:regression` (local or `API_BASE=staging`).
 
 ---
 
@@ -587,13 +671,20 @@ export async function listProducts(): Promise<Product[]> {
 
 **As a** QA engineer, **I want** a repeatable test list **so that** integrations do not regress.
 
-**Minimum manual checklist**
+**Automated** (`scripts/verify-regression.mjs`):
 
-1. Login / logout / refresh token  
+1. Login / refresh / invalid credentials  
 2. List products → add to cart → checkout → pay (COD)  
 3. Admin: create category → product → stock  
 4. Validation error on bad DTO (400)  
-5. 401 on expired token → refresh or login  
+5. 401 on `GET /cart` without JWT  
+
+**Manual** — full UI matrix in [`regression.md`](./regression.md).
+
+**Acceptance criteria**
+
+- [x] Repeatable checklist documented with auto/manual columns.
+- [x] CI `api-regression` job runs script against seeded API.
 
 ---
 
@@ -605,10 +696,10 @@ Use the backend seeder **before** wiring catalog/cart UI so lists, stock badges,
 
 | Item | Detail |
 |------|--------|
-| **Full reference** | [`data.md`](./data.md) (frontend) · [`backend/myapp/docs/data.md`](../../backend/myapp/docs/data.md) (authoritative) |
+| **Full reference** | [`seed.md`](./seed.md) · [`backend/myapp/docs/data.md`](../../backend/myapp/docs/data.md) |
 | **Script** | `backend/myapp/scripts/seed-shop-demo.ts` |
-| **Commands** | `pnpm run seed:demo` · `pnpm run seed:demo:fresh` · aliases: `seed`, `seed:fresh`, `mock:seed`, `mock:seed:fresh` |
-| **Prerequisite** | PostgreSQL up; start API once so TypeORM creates tables (`synchronize: true`) |
+| **Commands** | `pnpm run seed:demo` · `pnpm run seed:demo:fresh` · `pnpm run verify:seed` |
+| **Prerequisite** | PostgreSQL up (`docker compose up -d db`); tables via seed or API (`synchronize: true`) |
 
 ### What gets inserted (end-to-end shop narrative)
 
@@ -624,15 +715,27 @@ Use the backend seeder **before** wiring catalog/cart UI so lists, stock badges,
 | **Cart (shopper)** | 1× earbuds + 2× mango juice |
 | **Orders (shopper)** | Order #1 confirmed + COD payment success; Order #2 pending, unpaid |
 
+**Verify seed** (API must be running):
+
+```bash
+cd backend/myapp
+pnpm run seed:demo          # or seed:demo:fresh to reset
+pnpm run start:dev          # separate terminal
+cd ../../frontend/myapp
+pnpm run verify:seed
+```
+
 **Acceptance criteria**
 
-- [ ] `GET /products` returns multiple categories and realistic names/prices.
-- [ ] Login as `shopper@zentro.demo` → `GET /cart` shows two lines; `GET /orders` shows two orders.
-- [ ] `GET /stocks` shows varied quantities for dashboard widgets.
+- [x] `GET /products` returns multiple categories and realistic names/prices.
+- [x] Login as `shopper@zentro.demo` → `GET /cart` shows two lines; `GET /orders` shows two orders.
+- [x] `GET /stocks` shows varied quantities for dashboard widgets.
 
 ---
 
 ## Phase 8 — Nice-to-have enhancements (optional)
+
+> **Status:** Partial (i18n done). Context: [`phases/08-enhancements.md`](./phases/08-enhancements.md).
 
 Implement after Phases 0–7 when core flows are stable. None of these block MVP.
 
@@ -729,13 +832,15 @@ Implement after Phases 0–7 when core flows are stable. None of these block MVP
 
 ---
 
-### US-8.10 — Multi-language (i18n)
+### US-8.10 — Multi-language (i18n) ✅
 
 **As a** user, **I want** English/Urdu (or other) UI **so that** the app is accessible locally.
 
 **Acceptance criteria**
 
-- [ ] `react-intl` messages for shell navigation and commerce screens; language switcher in header.
+- [x] **i18next** + **react-i18next** (replaces `react-intl`) — nested JSON in `src/locales/en.json` and `src/locales/ur.json`; init in `src/libs/i18n.ts`.
+- [x] Thin `useT()` hook (`src/hooks/use-t.ts`) — `t(id, defaultMessage?, values?)` across shell, commerce, admin, and auth.
+- [x] **Language switcher** (EN / اردو) in `MainLayout` header; locale persisted in `localStorage` (`zentro-locale`); Urdu sets `dir="rtl"` on `<html>`.
 
 ---
 
@@ -795,13 +900,13 @@ Implement after Phases 0–7 when core flows are stable. None of these block MVP
 Phase 0  → Backend + frontend running, CORS/proxy decided
 Phase 1  → Env (VITE_API_BASE_URL), axios, tokens, AppConstants paths ✅
 Phase 2  → Login/register/refresh/profile password aligned with backend JSON ✅
-Phase 3  → Models + service stubs for all domains
-Phase 4  → Catalog → cart → checkout → orders → payments
-Phase 5  → Admin: categories, products, inventory, purchases, sales
-Phase 6  → Routes + navigation
-Phase 7  → Production env + regression checklist
-Seed     → pnpm run seed:demo (backend) for catalog/cart/order demo data
-Phase 8  → Nice-to-have (search, images, analytics, i18n, PWA, E2E, …)
+Phase 3  → Models + service stubs for all domains ✅
+Phase 4  → Catalog → cart → checkout → orders → payments ✅
+Phase 5  → Admin: categories, products, inventory, purchases, sales ✅
+Phase 6  → Routes + navigation ✅
+Phase 7  → Production env + regression checklist ✅
+Seed     → pnpm run seed:demo + verify:seed — see seed.md ✅
+Phase 8  → Nice-to-have (i18n ✅; search, images, analytics, PWA, E2E, …)
 ```
 
 ---
@@ -826,12 +931,31 @@ VITE_API_BASE_URL=http://localhost:3000
 
 | Document | Location |
 |----------|----------|
+| **Docs index** | `frontend/docs/README.md` |
+| **Branding (favicon, auth, sidebar)** | `frontend/docs/branding.md` |
+| **UI refactor plan** | `frontend/docs/ui-refactor-plan.md` |
+| **Phase context (all phases)** | `frontend/docs/phases/README.md` |
 | Phase 0 dev setup | `frontend/docs/dev-setup.md` |
+| Route map + role visibility | `frontend/docs/routes.md` |
+| Demo seed (full guide) | `frontend/docs/seed.md` |
+| Demo users quick ref | `frontend/docs/data.md` |
 | API endpoints & examples | `backend/myapp/docs/api-reference.md` |
 | Backend modules & conventions | `backend/myapp/docs/backend-architecture.md` |
+| Demo seed guide | `frontend/docs/seed.md` |
+| Demo DB tables (backend) | `backend/myapp/docs/data.md` |
 | Axios client | `frontend/myapp/src/libs/axios.ts` |
-| Auth service (starter) | `frontend/myapp/src/services/auth.ts` |
+| Auth service | `frontend/myapp/src/services/auth.ts` |
+| Cart store | `frontend/myapp/src/stores/cart.ts` |
+| Commerce pages | `frontend/myapp/src/pages/commerce/` |
+| Admin pages | `frontend/myapp/src/pages/admin/` |
+| Admin route guard | `frontend/myapp/src/routes/AdminRoutes.tsx` |
 | Route constants | `frontend/myapp/src/common/AppConstants.ts` |
-| Demo DB seed | `backend/myapp/docs/data.md` |
+| Sidebar menu | `frontend/myapp/src/common/MenuData.ts` |
+| Brand assets barrel | `frontend/myapp/src/assets/index.ts` |
+| Auth page layout | `frontend/myapp/src/components/layouts/AuthPageLayout.tsx` |
+| Brand logo component | `frontend/myapp/src/components/ui/BrandLogo.tsx` |
+| Production deploy | `frontend/docs/production.md` |
+| Regression checklist | `frontend/docs/regression.md` |
+| CI workflow | `.github/workflows/ci.yml` |
 
-When you begin implementation, run **`pnpm run seed:demo`** in `backend/myapp` (after DB tables exist), then start with **Phase 1 (US-1.1–US-1.3)** and **Phase 2 (US-2.1)** so the first authenticated request succeeds end-to-end before building catalog and cart UI.
+**Phases 0–7 are complete.** **US-8.10 (i18n)** is done — use the header language switcher to test EN/Urdu. Run **`pnpm run seed:demo`**, UI smoke tests in [dev-setup.md](./dev-setup.md), then **`pnpm run verify:regression`** and **`pnpm run verify:build`**. Optional next: **Phase 8** remainder (search, E2E, PWA, …).

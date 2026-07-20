@@ -6,16 +6,18 @@ import { IconColors } from '@/components/icons/types/RbIcon.types';
 
 interface AppButtonProps {
   children: React.ReactNode;
+  type?: 'button' | 'submit' | 'reset';
   color?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'flat';
   loading?: boolean;
   disabled?: boolean;
   className?: string;
   onClick?: () => void;
-};
+}
 
 export default function AppButton({
   children,
-  color,
+  type = 'button',
+  color = 'primary',
   loading,
   disabled,
   className,
@@ -23,6 +25,7 @@ export default function AppButton({
 }: AppButtonProps) {
   return (
     <button
+      type={type}
       onClick={onClick}
       disabled={disabled || loading}
       className={clsx(

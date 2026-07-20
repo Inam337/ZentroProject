@@ -19,6 +19,18 @@ Open [http://localhost:5173](http://localhost:5173).
 
 **Phase 1:** HTTP client (`src/libs/axios.ts`), tokens (`src/libs/auth-tokens.ts`), API paths (`AppConstants.ApiUrls` / `ApiUrlBuilders`).
 
+## Branding & assets
+
+| Item | Location |
+|------|----------|
+| Favicon | `public/favicon.svg`, `public/favicon.png` |
+| App title | `index.html` → **Zentro** |
+| Asset barrel | `src/assets/index.ts` — `loginBg`, `logoColor`, `logoWhite`, `brandIcon` |
+| Auth layout | `AuthPageLayout` — login/register/forgot password |
+| Sidebar logo | `BrandLogo` in `AppSidebar` |
+
+Full guide: [../docs/branding.md](../docs/branding.md)
+
 ## Commands
 
 | Command | Description |
@@ -26,9 +38,12 @@ Open [http://localhost:5173](http://localhost:5173).
 | `pnpm dev` | Vite dev server |
 | `pnpm build` | Production build |
 | `pnpm lint` | ESLint |
+| `pnpm run verify:build` | Production build + API URL check |
 
 ## Docs
 
 - [Dev setup (Phase 0)](../docs/dev-setup.md)
 - [Integration plan](../docs/architecture.md)
+- [Branding (favicon, auth, sidebar)](../docs/branding.md)
+- [UI refactor plan](../docs/ui-refactor-plan.md)
 - [Mock users & seed data](../docs/data.md)

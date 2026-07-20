@@ -4,11 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState } from 'react';
 
 import { AppConstants } from '@/common/AppConstants';
+import { useAuthTranslation } from '@/hooks/use-auth-translation';
 import AppButton from '@/components/ui/AppButton';
 import FieldError from '@/components/ui/FieldError';
-import LayoutCenter from '@/components/layouts/LayoutCenter';
+import { FormInput } from '@/components/ui/FormInput';
+import AuthPageLayout from '@/components/layouts/AuthPageLayout';
 import PasswordInput from '@/components/ui/PasswordInput';
-import { useAuthTranslation } from '@/hooks/use-auth-translation';
 import { useAuthStore } from '@/stores/auth';
 import {
   createRegisterSchema,
@@ -19,12 +20,13 @@ import {
 import AuthFormLayout from './AuthFormLayout';
 
 export default function RegisterPage() {
-  const { t, i18nT, resolveAuthMessage } = useAuthTranslation();
+  const { t, resolveAuthMessage } = useAuthTranslation();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const registerUser = useAuthStore(state => state.register);
-  const registerSchema = useMemo(() => createRegisterSchema(t), [t]);  const {
+  const registerSchema = useMemo(() => createRegisterSchema(t), [t]);
+  const {
     register,
     handleSubmit,
     formState: { errors },
@@ -33,7 +35,8 @@ export default function RegisterPage() {
     defaultValues: registerFormDefaultValues,
     mode: 'onSubmit',
     reValidateMode: 'onChange',
-  });  const onSubmit = async (data: RegisterFormData) => {
+  });
+  const onSubmit = async (data: RegisterFormData) => {
     setError(null);
     setIsSubmitting(true);
 
@@ -61,19 +64,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <LayoutCenter>
+    <AuthPageLayout>
       <AuthFormLayout
-        title={i18nT('auth.register.title')}
-        subtitle={i18nT('auth.register.subtitle')}
+        title={t('auth.register.title', 'Create account')}
+        subtitle={t('auth.register.subtitle', 'Join Zentro to shop and manage orders')}
         footer={(
           <p className="text-sm text-gray-600 text-center">
-            {i18nT('auth.common.hasAccount')}
+            {t('auth.common.hasAccount', 'Already have an account?')}
             {' '}
             <Link
               to={AppConstants.Routes.Public.Login}
               className="text-primary font-medium hover:underline"
             >
-              {i18nT('auth.common.loginLink')}
+              {t('auth.common.loginLink', 'Sign in')}
             </Link>
           </p>
         )}
@@ -83,85 +86,58 @@ export default function RegisterPage() {
           className="flex flex-col w-full space-y-4"
           noValidate
         >
-          <div>
-            <label
-              className="text-sm font-medium"
-              htmlFor="name"
-            >
-              {i18nT('auth.register.nameLabel')}
-            </label>
-            <input
-              id="name"
-              {...register('name')}
-              type="text"
-              autoComplete="name"
-              placeholder={i18nT('auth.register.namePlaceholder')}
-              className="w-full px-3 py-2 border rounded mt-1"
-            />
-            <FieldError msg={errors.name?.message} />
-          </div>
+          <FormInput
+            id="name"
+            label={t('auth.register.nameLabel', 'Full name')}
+            error={errors.name?.message}
+            {...register('name')}
+            type="text"
+            autoComplete="name"
+            placeholder={t('auth.register.namePlaceholder', 'Enter your name')}
+          />
 
-          <div>
-            <label
-              className="text-sm font-medium"
-              htmlFor="email"
-            >
-              {i18nT('auth.register.emailLabel')}
-            </label>
-            <input
-              id="email"
-              {...register('email')}
-              type="email"
-              autoComplete="email"
-              placeholder={i18nT('auth.register.emailPlaceholder')}
-              className="w-full px-3 py-2 border rounded mt-1"
-            />
-            <FieldError msg={errors.email?.message} />
-          </div>
+          <FormInput
+            id="email"
+            label={t('auth.register.emailLabel', 'Email')}
+            error={errors.email?.message}
+            {...register('email')}
+            type="email"
+            autoComplete="email"
+            placeholder={t('auth.register.emailPlaceholder', 'Enter your email')}
+          />
 
-          <div>
-            <label
-              className="text-sm font-medium"
-              htmlFor="password"
-            >
-              {i18nT('auth.register.passwordLabel')}
-            </label>
-            <PasswordInput
-              name="password"
-              register={register}
-              className="mt-1"
-              placeholder={i18nT('auth.register.passwordPlaceholder')}
-            />
-            <FieldError msg={errors.password?.message} />
-          </div>
+          <PasswordInput
+            name="password"
+            id="password"
+            label={t('auth.register.passwordLabel', 'Password')}
+            register={register}
+            error={errors.password?.message}
+            placeholder={t('auth.register.passwordPlaceholder', 'Create a password')}
+          />
 
-          <div>
-            <label
-              className="text-sm font-medium"
-              htmlFor="confirmPassword"
-            >
-              {i18nT('auth.register.confirmPasswordLabel')}
-            </label>
-            <PasswordInput
-              name="confirmPassword"
-              register={register}
-              className="mt-1"
-              placeholder={i18nT('auth.register.confirmPasswordPlaceholder')}
-            />
-            <FieldError msg={errors.confirmPassword?.message} />
-          </div>
+          <PasswordInput
+            name="confirmPassword"
+            id="confirmPassword"
+            label={t('auth.register.confirmPasswordLabel', 'Confirm password')}
+            register={register}
+            error={errors.confirmPassword?.message}
+            placeholder={t('auth.register.confirmPasswordPlaceholder', 'Re-enter your password')}
+          />
 
-          <FieldError msg={error} />
+          <FieldError
+            msg={error}
+            variant="form"
+          />
 
           <AppButton
             type="submit"
             color="primary"
             loading={isSubmitting}
           >
-            {i18nT('auth.register.submit')}
+            {t('auth.register.submit', 'Register')}
           </AppButton>
         </form>
       </AuthFormLayout>
-    </LayoutCenter>
+    </AuthPageLayout>
   );
 }

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 
-import { RbIcon } from '../icons/common/RbIcon';
+import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 import { cn } from '@/libs/utils';
 
@@ -56,10 +56,11 @@ function SelectTrigger({
           'data-[placeholder]:text-muted-foreground ',
           'cursor-pointer text-foreground',
           '[&_svg:not([class*=\'text-\'])]:text-black',
-          'focus-visible:border-ring ',
-          'focus-visible:ring-gray-600 text-black',
-          'aria-invalid:ring-destructive/20',
-          'aria-invalid:border-destructive ',
+          'focus-visible:border-gray-500 focus-visible:ring-2 focus-visible:ring-gray-300/40',
+          'aria-invalid:border-[var(--field-error-border)]',
+          'aria-invalid:focus-visible:border-[var(--field-error-border)]',
+          'aria-invalid:focus-visible:ring-2',
+          'aria-invalid:focus-visible:ring-[var(--field-error-border)]/15',
           'bg-white',
           'hover:bg-gray-50 ',
           'flex w-fit items-center justify-between gap-2 ',

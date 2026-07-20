@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { RbIcon } from '../icons/common/RbIcon';
+import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 import { cn } from '@/libs/utils';
 import { Button } from '@/components/ui/Button';

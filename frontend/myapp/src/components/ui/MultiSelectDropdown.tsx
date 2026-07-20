@@ -12,7 +12,7 @@ import type {
 } from 'react-select';
 
 import { IconColors } from '@/components/icons/types/RbIcon.types';
-import { RbIcon } from '../icons/common/RbIcon';
+import { RbIcon } from '@/components/icons/common/RbIcon';
 
 export interface SelectOption {
   value: string;

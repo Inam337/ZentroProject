@@ -1,10 +1,12 @@
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 import type { IconKey } from '@/components/icons/config/icons.registry';
 import { AppConstants } from '@/common/AppConstants';
+import { Roles } from '@/common/Roles';
 
 export interface MenuSubItem {
   title: string;
   url: string;
+  roles?: string[];
 }
 
 export interface MenuItem {
@@ -14,6 +16,7 @@ export interface MenuItem {
   iconWidth?: number;
   iconHeight?: number;
   iconFill?: string;
+  roles?: string[];
   items?: MenuSubItem[];
 }
 
@@ -37,7 +40,7 @@ export const menuData: MenuData = {
     },
     {
       title: 'menu.catalog',
-      url: '/catalog',
+      url: AppConstants.Routes.Private.Products,
       icon: 'categories',
       iconWidth,
       iconHeight,
@@ -45,21 +48,21 @@ export const menuData: MenuData = {
       items: [
         {
           title: 'menu.products',
-          url: '/products',
+          url: AppConstants.Routes.Private.Products,
         },
         {
           title: 'menu.categories',
-          url: '/categories',
+          url: AppConstants.Routes.Private.Categories,
         },
         {
           title: 'menu.cart',
-          url: '/cart',
+          url: AppConstants.Routes.Private.Cart,
         },
       ],
     },
     {
       title: 'menu.orders',
-      url: '/orders',
+      url: AppConstants.Routes.Private.Orders,
       icon: 'barChart',
       iconWidth,
       iconHeight,
@@ -67,11 +70,54 @@ export const menuData: MenuData = {
       items: [
         {
           title: 'menu.ordersList',
-          url: '/orders',
+          url: AppConstants.Routes.Private.Orders,
         },
         {
           title: 'menu.checkout',
-          url: '/checkout',
+          url: AppConstants.Routes.Private.Checkout,
+        },
+      ],
+    },
+    {
+      title: 'menu.admin',
+      url: AppConstants.Routes.Private.Admin.Categories,
+      icon: 'settings',
+      iconWidth,
+      iconHeight,
+      iconFill,
+      roles: [Roles.ADMIN],
+      items: [
+        {
+          title: 'menu.adminCategories',
+          url: AppConstants.Routes.Private.Admin.Categories,
+        },
+        {
+          title: 'menu.adminProducts',
+          url: AppConstants.Routes.Private.Admin.Products,
+        },
+        {
+          title: 'menu.adminStock',
+          url: AppConstants.Routes.Private.Admin.Stock,
+        },
+        {
+          title: 'menu.adminSuppliers',
+          url: AppConstants.Routes.Private.Admin.Suppliers,
+        },
+        {
+          title: 'menu.adminPurchases',
+          url: AppConstants.Routes.Private.Admin.Purchases,
+        },
+        {
+          title: 'menu.adminSales',
+          url: AppConstants.Routes.Private.Admin.Sales,
+        },
+        {
+          title: 'menu.adminCustomers',
+          url: AppConstants.Routes.Private.Admin.Customers,
+        },
+        {
+          title: 'menu.adminUsers',
+          url: AppConstants.Routes.Private.Admin.Users,
         },
       ],
     },

@@ -4,11 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState } from 'react';
 
 import { AppConstants } from '@/common/AppConstants';
+import { useAuthTranslation } from '@/hooks/use-auth-translation';
 import AppButton from '@/components/ui/AppButton';
 import FieldError from '@/components/ui/FieldError';
-import LayoutCenter from '@/components/layouts/LayoutCenter';
+import { FormInput } from '@/components/ui/FormInput';
+import AuthPageLayout from '@/components/layouts/AuthPageLayout';
 import PasswordInput from '@/components/ui/PasswordInput';
-import { useAuthTranslation } from '@/hooks/use-auth-translation';
 import { useAuthStore } from '@/stores/auth';
 import {
   createLoginSchema,
@@ -19,12 +20,13 @@ import {
 import AuthFormLayout from './AuthFormLayout';
 
 export default function LoginPage() {
-  const { t, i18nT, resolveAuthMessage } = useAuthTranslation();
+  const { t, resolveAuthMessage } = useAuthTranslation();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const login = useAuthStore(state => state.login);
-  const loginSchema = useMemo(() => createLoginSchema(t), [t]);  const {
+  const loginSchema = useMemo(() => createLoginSchema(t), [t]);
+  const {
     register,
     handleSubmit,
     formState: { errors },
@@ -33,7 +35,8 @@ export default function LoginPage() {
     defaultValues: loginFormDefaultValues,
     mode: 'onSubmit',
     reValidateMode: 'onChange',
-  });  const onSubmit = async (data: LoginFormData) => {
+  });
+  const onSubmit = async (data: LoginFormData) => {
     setError(null);
     setIsSubmitting(true);
 
@@ -57,27 +60,27 @@ export default function LoginPage() {
   };
 
   return (
-    <LayoutCenter>
+    <AuthPageLayout>
       <AuthFormLayout
-        title={i18nT('auth.login.title')}
-        subtitle={i18nT('auth.login.subtitle')}
+        title={t('auth.login.title', 'Sign in')}
+        subtitle={t('auth.login.subtitle', 'Welcome back to Zentro')}
         footer={(
           <>
             <p className="text-sm text-gray-600 text-center">
-              {i18nT('auth.common.noAccount')}
+              {t('auth.common.noAccount', 'Don\'t have an account?')}
               {' '}
               <Link
                 to={AppConstants.Routes.Public.Register}
                 className="text-primary font-medium hover:underline"
               >
-                {i18nT('auth.common.registerLink')}
+                {t('auth.common.registerLink', 'Create an account')}
               </Link>
             </p>
             <Link
               to={AppConstants.Routes.Public.ForgotPassword}
               className="text-sm text-gray-500 hover:text-gray-800 text-center"
             >
-              {i18nT('auth.login.forgotPasswordLink')}
+              {t('auth.login.forgotPasswordLink', 'Forgot password?')}
             </Link>
           </>
         )}
@@ -88,51 +91,42 @@ export default function LoginPage() {
           noValidate
         >
           <div className="w-full">
-            <label
-              className="text-sm font-medium"
-              htmlFor="email"
-            >
-              {i18nT('auth.login.emailLabel')}
-            </label>
-            <input
+            <FormInput
               id="email"
+              label={t('auth.login.emailLabel', 'Email')}
+              error={errors.email?.message}
               {...register('email')}
               type="email"
               autoComplete="email"
-              placeholder={i18nT('auth.login.emailPlaceholder')}
-              className="w-full px-3 py-2 border rounded mt-1"
+              placeholder={t('auth.login.emailPlaceholder', 'Enter your email')}
             />
-            <FieldError msg={errors.email?.message} />
           </div>
 
           <div className="w-full">
-            <label
-              className="text-sm font-medium"
-              htmlFor="password"
-            >
-              {i18nT('auth.login.passwordLabel')}
-            </label>
-            <div className="mt-1">
-              <PasswordInput
-                name="password"
-                register={register}
-                placeholder={i18nT('auth.login.passwordPlaceholder')}
-              />
-            </div>
-            <FieldError msg={errors.password?.message} />
+            <PasswordInput
+              name="password"
+              id="password"
+              label={t('auth.login.passwordLabel', 'Password')}
+              register={register}
+              error={errors.password?.message}
+              placeholder={t('auth.login.passwordPlaceholder', 'Enter your password')}
+            />
           </div>
 
-          <FieldError msg={error} />
+          <FieldError
+            msg={error}
+            variant="form"
+          />
 
           <AppButton
             type="submit"
             color="primary"
             loading={isSubmitting}
           >
-            {i18nT('auth.login.submit')}
+            {t('auth.login.submit', 'Sign in')}
           </AppButton>
         </form>
       </AuthFormLayout>
-    </LayoutCenter>
+    </AuthPageLayout>
   );
 }

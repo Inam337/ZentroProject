@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { useIntl } from 'react-intl';
+import { useT } from '@/hooks/use-t';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, KeyRound, LogOut } from 'lucide-react';
+import { ChevronDown, KeyRound, LogOut } from '@/components/icons/FluentIcons';
 
 import { AppConstants } from '@/common/AppConstants';
 import { cn } from '@/libs/utils';
 import { useAuthStore } from '@/stores/auth';
+import { useCartStore } from '@/stores/cart';
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -22,7 +23,7 @@ function getInitials(name: string): string {
 }
 
 export default function HeaderProfileDropdown() {
-  const intl = useIntl();
+  const { t } = useT();
   const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
   const logout = useAuthStore(state => state.logout);
@@ -50,6 +51,7 @@ export default function HeaderProfileDropdown() {
   const handleLogout = () => {
     setOpen(false);
     logout();
+    useCartStore.getState().reset();
     navigate(AppConstants.Routes.Public.Login, { replace: true });
   };
 
@@ -109,10 +111,7 @@ export default function HeaderProfileDropdown() {
                 <p className="text-sm font-semibold text-gray-900">{user.name}</p>
                 <p className="mt-0.5 truncate text-sm text-gray-600">{user.email}</p>
                 <p className="mt-1 text-xs capitalize text-gray-500">
-                  {intl.formatMessage({
-                    id: 'header.profile.role',
-                    defaultMessage: 'Role',
-                  })}
+                  {t('header.profile.role', 'Role')}
                   {': '}
                   {user.role}
                 </p>
@@ -128,10 +127,7 @@ export default function HeaderProfileDropdown() {
                 )}
               >
                 <KeyRound className="h-4 w-4 text-gray-700" />
-                {intl.formatMessage({
-                  id: 'header.profile.changePassword',
-                  defaultMessage: 'Change Password',
-                })}
+                {t('header.profile.changePassword', 'Change Password')}
               </button>
 
               <button
@@ -144,10 +140,7 @@ export default function HeaderProfileDropdown() {
                 )}
               >
                 <LogOut className="h-4 w-4 text-gray-700" />
-                {intl.formatMessage({
-                  id: 'menu.logout',
-                  defaultMessage: 'Log out',
-                })}
+                {t('menu.logout', 'Log out')}
               </button>
             </div>
           )

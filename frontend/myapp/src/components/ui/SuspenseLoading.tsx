@@ -21,8 +21,11 @@ const SuspenseLoading: React.FC<SuspenseLoadingProps> = ({
   const barSize = barSizeClasses[size];
 
   return (
-    <div className={cn(`w-full fixed z-50 left-0 top-0 flex items-center
-    justify-center h-screen flex-col bg-white/40`, className)}
+    <div className={cn(
+      'w-full fixed z-50 left-0 top-0 flex items-center justify-center h-screen flex-col',
+      'bg-zentro-beige/60 backdrop-blur-[2px]',
+      className,
+    )}
     >
       <div className="flex flex-col items-center justify-center text-center">
         {/* Bouncing Circle */}
@@ -30,7 +33,7 @@ const SuspenseLoading: React.FC<SuspenseLoadingProps> = ({
           <div
             className="w-2 h-2 rounded-full"
             style={{
-              backgroundColor: 'var(--color-primary)',
+              backgroundColor: 'var(--zentro-teal)',
               animation: 'bounce-circle 1.4s ease-in-out infinite',
               animationDelay: '0s',
             }}
@@ -38,7 +41,7 @@ const SuspenseLoading: React.FC<SuspenseLoadingProps> = ({
           <div
             className="w-2 h-2 rounded-full"
             style={{
-              backgroundColor: 'var(--color-primary)',
+              backgroundColor: 'var(--zentro-mint)',
               animation: 'bounce-circle 1.4s ease-in-out infinite',
               animationDelay: '0.2s',
             }}
@@ -46,7 +49,7 @@ const SuspenseLoading: React.FC<SuspenseLoadingProps> = ({
           <div
             className="w-2 h-2 rounded-full"
             style={{
-              backgroundColor: 'var(--color-primary)',
+              backgroundColor: 'var(--zentro-teal)',
               animation: 'bounce-circle 1.4s ease-in-out infinite',
               animationDelay: '0.4s',
             }}
@@ -54,8 +57,11 @@ const SuspenseLoading: React.FC<SuspenseLoadingProps> = ({
         </div>
         {/* Loading Bar */}
         <div
-          className={cn('relative overflow-hidden rounded-full bg-gray-200',
-            barSize.width, barSize.height)}
+          className={cn(
+            'relative overflow-hidden rounded-full bg-zentro-mint/30',
+            barSize.width,
+            barSize.height,
+          )}
           role="status"
           aria-label="Loading"
         >
@@ -65,7 +71,8 @@ const SuspenseLoading: React.FC<SuspenseLoadingProps> = ({
               background: `linear-gradient(
                 90deg,
                 transparent 0%,
-                var(--color-primary) 50%,
+                var(--zentro-teal) 35%,
+                var(--zentro-mint) 65%,
                 transparent 100%
               )`,
               width: '50%',

@@ -1,23 +1,18 @@
 import { useCallback } from 'react';
-import { useIntl } from 'react-intl';
 
+import { useT } from '@/hooks/use-t';
 import type { TranslationFunction } from '@/validation-schemas';
 
-/** react-intl helper for auth forms and Zod schemas */
+/** i18next helper for auth forms and Zod schemas */
 export function useAuthTranslation() {
-  const intl = useIntl();
+  const { t: translate } = useT();
   const t: TranslationFunction = useCallback(
-    (id, defaultMessage, values) =>
-      intl.formatMessage({ id, defaultMessage }, values),
-    [intl],
+    (id, defaultMessage, values) => translate(id, defaultMessage, values),
+    [translate],
   );
   const i18nT = useCallback(
-    (id: string, defaultMessage?: string) =>
-      intl.formatMessage({
-        id,
-        defaultMessage: defaultMessage ?? id,
-      }),
-    [intl],
+    (id: string, defaultMessage?: string) => translate(id, defaultMessage),
+    [translate],
   );
   const resolveAuthMessage = useCallback(
     (message: string) => (message.startsWith('auth.') ? i18nT(message) : message),

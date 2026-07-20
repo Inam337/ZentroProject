@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 
-import { cn } from '@/libs/utils';
+import { RbIcon } from '@/components/icons/common/RbIcon';
+import { IconColors } from '@/components/icons/types/RbIcon.types';
 import { Button } from '@/components/ui/Button';
 import { Calendar } from '@/components/ui/Calendar';
 import {
@@ -8,8 +9,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/Popover';
-import { RbIcon } from '../icons/common/RbIcon';
-import { IconColors } from '@/components/icons/types/RbIcon.types';
+import { cn } from '@/libs/utils';
+
 interface DatePickerProps {
   date?: Date;
   onDateChange?: (date: Date | undefined) => void;
@@ -53,7 +54,6 @@ export function DatePicker({
           mode="single"
           selected={date}
           onSelect={onDateChange}
-          initialFocus
         />
       </PopoverContent>
     </Popover>

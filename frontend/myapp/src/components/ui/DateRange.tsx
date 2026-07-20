@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/Popover';
 import { Button } from '@/components/ui/Button';
-import { RbIcon } from '../icons/common/RbIcon';
+import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';

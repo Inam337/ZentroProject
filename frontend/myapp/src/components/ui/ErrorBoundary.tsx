@@ -5,9 +5,7 @@ import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 import { Button } from '@/components/ui/Button';
 import { Image } from '@/components/ui/Image';
-
 import Logo from '@/assets/logo/logo.svg';
-
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;

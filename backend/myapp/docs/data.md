@@ -2,6 +2,7 @@
 
 Reference for the Zentro shop **demo seed**: mock accounts, catalog, inventory, and sample commerce records used for frontend development and API testing.
 
+**Frontend seed guide:** [`../../../frontend/docs/seed.md`](../../../frontend/docs/seed.md) — quick start, verify, UI mapping.  
 **Source script:** [`scripts/seed-shop-demo.ts`](../scripts/seed-shop-demo.ts)  
 **SQL stub (users only):** [`scripts/seed-shop-demo.sql`](../scripts/seed-shop-demo.sql)
 
@@ -41,6 +42,9 @@ pnpm run seed:demo
 
 # 4. Re-load after experiments (wipes demo commerce data)
 pnpm run seed:demo:fresh
+
+# 5. Verify (API running)
+cd ../../frontend/myapp && pnpm run verify:seed
 ```
 
 ### Prerequisites
@@ -244,6 +248,38 @@ Interactive docs: `http://localhost:3000/reference`
 
 ---
 
+## Frontend mapping (Phase 4 UI)
+
+With `frontend/myapp` on `http://localhost:5173` and seed loaded, log in as **shopper@zentro.demo** and use:
+
+| API / seed entity | App route | Notes |
+|-------------------|-----------|-------|
+| `GET /products` | `/products` | All 12 active products; category chips |
+| `GET /products/:id` | `/products/:id` | e.g. earbuds `ELC-EARBUDS`, mango `BEV-MANGO-1L` |
+| `GET /categories` | `/categories` | Grocery, Beverages, Electronics, Personal Care |
+| `GET /cart` | `/cart` | Pre-filled earbuds + 2× mango juice |
+| `POST /orders/checkout` | `/checkout` → **Place order** | Clears cart; navigates to `/orders/:id` |
+| `GET /orders` | `/orders` | Order 1 (paid), Order 2 (pending) + new orders |
+| `GET /orders/:id` | `/orders/:id` | Line items, totals, payment block |
+| `POST /payments` | `/orders/:id` → **Pay now** | Methods: `cod`, `stripe`, `jazzcash`, `easypaisa` |
+
+**Admin seed user** (`admin@zentro.demo`) — same password; use `/admin/*` routes in the SPA (categories, products, stock, suppliers, purchases, sales).
+
+| Seed entity | Admin UI route |
+|-------------|----------------|
+| Categories | `/admin/categories` |
+| Products | `/admin/products` |
+| Stock | `/admin/stock` |
+| Metro Wholesale | `/admin/suppliers` |
+| Purchase 151500 | `/admin/purchases` |
+| POS sale 4999 | `/admin/sales` |
+| Hassan Traders, Sana Retail | `/admin/customers` |
+| `shopper@` / `admin@` demo users | `/admin/users` |
+
+**Docs:** [seed.md](../../../frontend/docs/seed.md) · [routes map](../../../frontend/docs/routes.md) · [dev-setup smoke tests](../../../frontend/docs/dev-setup.md) · [architecture](../../../frontend/docs/architecture.md)
+
+---
+
 ## Related docs
 
 | Doc | Path |
@@ -251,4 +287,5 @@ Interactive docs: `http://localhost:3000/reference`
 | API endpoints | [`api-reference.md`](./api-reference.md) |
 | Backend architecture | [`backend-architecture.md`](./backend-architecture.md) |
 | Frontend integration plan | [`../../../frontend/docs/architecture.md`](../../../frontend/docs/architecture.md) |
-| Frontend mock data quick ref | [`../../../frontend/docs/data.md`](../../../frontend/docs/data.md) |
+| Frontend seed guide | [`../../../frontend/docs/seed.md`](../../../frontend/docs/seed.md) |
+| Frontend data quick ref | [`../../../frontend/docs/data.md`](../../../frontend/docs/data.md) |

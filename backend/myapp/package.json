@@ -19,6 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed:demo": "ts-node -r tsconfig-paths/register scripts/seed-shop-demo.ts",
+    "seed:verify": "node ../../frontend/myapp/scripts/verify-seed.mjs",
     "seed:demo:fresh": "ts-node -r tsconfig-paths/register scripts/seed-shop-demo.ts -- --fresh",
     "seed": "pnpm run seed:demo",
     "seed:fresh": "pnpm run seed:demo:fresh",

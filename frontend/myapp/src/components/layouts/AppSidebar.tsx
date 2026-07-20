@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
-import { useIntl } from 'react-intl';
 import { useLocation } from 'react-router-dom';
-import { PanelLeftClose, PanelLeftOpen, X } from 'lucide-react';
 
-import { menuData } from '@/common/MenuData';
-import { NestingNav } from '@/components/ui/NestingNav';
+import { PanelLeftClose, PanelLeftOpen, X } from '@/components/icons/FluentIcons';
 import { useSidebarLayout } from '@/components/layouts/sidebar-layout-context';
+import { BrandLogo } from '@/components/ui/BrandLogo';
+import { NestingNav } from '@/components/ui/NestingNav';
+import { menuData } from '@/common/MenuData';
 import { useFilteredMenu } from '@/hooks/useFilteredMenu';
+import { useT } from '@/hooks/use-t';
 import { cn } from '@/libs/utils';
 
 function SidebarPanel({
@@ -18,34 +19,28 @@ function SidebarPanel({
   onCloseMobile?: () => void;
   showCloseButton?: boolean;
 }) {
-  const intl = useIntl();
+  const { t } = useT();
   const filteredMenuItems = useFilteredMenu(menuData.navMain);
 
   return (
     <>
       <div
         className={cn(
-          'flex items-center border-b border-blue-700 h-15',
+          'flex items-center border-b border-sidebar h-15',
           collapsed ? 'justify-center px-2 py-4' : 'justify-between px-4 py-4',
         )}
       >
-        {!collapsed
-          ? (
-              <span className="text-lg font-semibold tracking-tight">Zentro</span>
-            )
-          : (
-              <span className="text-sm font-bold">Z</span>
-            )}
+        <BrandLogo
+          collapsed={collapsed}
+          variant="white"
+        />
         {showCloseButton
           ? (
               <button
                 type="button"
                 onClick={onCloseMobile}
                 className="rounded-md p-1 hover:bg-white/10 lg:hidden"
-                aria-label={intl.formatMessage({
-                  id: 'sidebar.close',
-                  defaultMessage: 'Close menu',
-                })}
+                aria-label={t('sidebar.close', 'Close menu')}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -66,7 +61,7 @@ function SidebarPanel({
 
 export function AppSidebar() {
   const location = useLocation();
-  const intl = useIntl();
+  const { t } = useT();
   const {
     collapsed,
     toggleCollapsed,
@@ -80,7 +75,7 @@ export function AppSidebar() {
   }, [location.pathname, setMobileOpen]);
 
   const sidebarClasses = cn(
-    'flex shrink-0 flex-col bg-[#00529c] text-white transition-all duration-200',
+    'flex shrink-0 flex-col bg-sidebar text-white transition-all duration-200',
     collapsed ? 'w-16' : 'w-56',
   );
 
@@ -92,10 +87,7 @@ export function AppSidebar() {
               <button
                 type="button"
                 className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-                aria-label={intl.formatMessage({
-                  id: 'sidebar.closeOverlay',
-                  defaultMessage: 'Close menu overlay',
-                })}
+                aria-label={t('sidebar.closeOverlay', 'Close menu overlay')}
                 onClick={() => setMobileOpen(false)}
               />
             )
@@ -103,7 +95,7 @@ export function AppSidebar() {
         <aside
           className={cn(
             'fixed inset-y-0 left-0 z-50 flex w-56 flex-col shadow-xl',
-            'bg-[#00529c] text-white transition-transform duration-200 lg:hidden',
+            'bg-sidebar text-white transition-transform duration-200 lg:hidden',
             mobileOpen ? 'translate-x-0' : '-translate-x-full',
           )}
         >
@@ -122,17 +114,17 @@ export function AppSidebar() {
       <SidebarPanel collapsed={collapsed} />
       <div
         className={cn(
-          'border-t border-blue-700 p-2',
+          'border-t border-sidebar p-2',
           collapsed ? 'flex justify-center' : 'px-2',
         )}
       >
         <button
           type="button"
           onClick={toggleCollapsed}
-          title={intl.formatMessage({
-            id: collapsed ? 'sidebar.expand' : 'sidebar.collapse',
-            defaultMessage: collapsed ? 'Expand sidebar' : 'Collapse sidebar',
-          })}
+          title={t(
+            collapsed ? 'sidebar.expand' : 'sidebar.collapse',
+            collapsed ? 'Expand sidebar' : 'Collapse sidebar',
+          )}
           className={cn(
             'flex w-full items-center rounded-md py-2 text-sm',
             'hover:bg-white/10 transition-colors',
@@ -147,10 +139,7 @@ export function AppSidebar() {
                 <>
                   <PanelLeftClose className="h-5 w-5 shrink-0" />
                   <span>
-                    {intl.formatMessage({
-                      id: 'sidebar.collapse',
-                      defaultMessage: 'Collapse',
-                    })}
+                    {t('sidebar.collapse', 'Collapse')}
                   </span>
                 </>
               )}

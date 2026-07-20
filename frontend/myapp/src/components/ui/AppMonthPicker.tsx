@@ -7,8 +7,35 @@ import { cn } from '@/libs/utils';
 
 const MONTH_NAMES = Array.from({ length: 12 }, (_, i) =>
   format(new Date(2000, i, 1), 'MMM'));
-
 const DROPDOWN_HEIGHT = 260;
+
+function parseMonthKey(monthKey: string): Date | null {
+  try {
+    const [y, m] = monthKey.split('-').map(Number);
+
+    if (!y || !m) {
+      return null;
+    }
+
+    return new Date(y, m - 1, 1);
+  } catch {
+    return null;
+  }
+}
+
+function formatMonthLabel(monthKey: string): string {
+  const date = parseMonthKey(monthKey);
+
+  return date ? format(date, 'MMM yyyy') : monthKey;
+}
+
+function resolveValueDate(monthKey?: string): Date {
+  if (!monthKey) {
+    return startOfMonth(new Date());
+  }
+
+  return parseMonthKey(monthKey) ?? startOfMonth(new Date());
+}
 
 type AppMonthPickerProps = {
   onMonthSelect: (monthKey: string) => void;
@@ -31,29 +58,8 @@ export const AppMonthPicker: React.FC<AppMonthPickerProps> = ({
   const [position, setPosition] = useState<'bottom' | 'top'>('bottom');
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const displayLabel = value
-    ? (() => {
-        try {
-          const [y, m] = value.split('-').map(Number);
-
-          return format(new Date(y, m - 1, 1), 'MMM yyyy');
-        } catch {
-          return value;
-        }
-      })()
-    : '';
-
-  const valueDate = value ? (() => {
-    try {
-      const [y, m] = value.split('-').map(Number);
-
-      return new Date(y, m - 1, 1);
-    } catch {
-      return startOfMonth(new Date());
-    }
-  })() : startOfMonth(new Date());
-
+  const displayLabel = value ? formatMonthLabel(value) : '';
+  const valueDate = resolveValueDate(value);
   const [viewYear, setViewYear] = useState(() => valueDate.getFullYear());
 
   useEffect(() => {
@@ -66,26 +72,18 @@ export const AppMonthPicker: React.FC<AppMonthPickerProps> = ({
     }
   }, [value]);
 
-  const minDate = minMonthKey
-    ? (() => {
-        const [y, m] = minMonthKey.split('-').map(Number);
-
-        return new Date(y, m - 1, 1);
-      })()
-    : null;
-  const maxDate = maxMonthKey
-    ? (() => {
-        const [y, m] = maxMonthKey.split('-').map(Number);
-
-        return new Date(y, m - 1, 1);
-      })()
-    : null;
-
+  const minDate = minMonthKey ? parseMonthKey(minMonthKey) : null;
+  const maxDate = maxMonthKey ? parseMonthKey(maxMonthKey) : null;
   const isMonthDisabled = (monthIndex: number) => {
     const d = new Date(viewYear, monthIndex, 1);
 
-    if (minDate && d < minDate) return true;
-    if (maxDate && d > maxDate) return true;
+    if (minDate && d < minDate) {
+      return true;
+    }
+
+    if (maxDate && d > maxDate) {
+      return true;
+    }
 
     return false;
   };
@@ -106,17 +104,33 @@ export const AppMonthPicker: React.FC<AppMonthPickerProps> = ({
       const padding = 20;
       const required = DROPDOWN_HEIGHT + padding;
 
-      if (modalSpaceBelow < required && modalSpaceAbove >= required) return 'top';
-      if (modalSpaceBelow >= required) return 'bottom';
-      if (modalSpaceAbove >= required) return 'top';
-      if (modalSpaceAbove > modalSpaceBelow) return 'top';
+      if (modalSpaceBelow < required && modalSpaceAbove >= required) {
+        return 'top';
+      }
+
+      if (modalSpaceBelow >= required) {
+        return 'bottom';
+      }
+
+      if (modalSpaceAbove >= required) {
+        return 'top';
+      }
+
+      if (modalSpaceAbove > modalSpaceBelow) {
+        return 'top';
+      }
     }
 
     const padding = 20;
     const required = DROPDOWN_HEIGHT + padding;
 
-    if (spaceBelow < required && spaceAbove >= required) return 'top';
-    if (spaceAbove > spaceBelow) return 'top';
+    if (spaceBelow < required && spaceAbove >= required) {
+      return 'top';
+    }
+
+    if (spaceAbove > spaceBelow) {
+      return 'top';
+    }
 
     return 'bottom';
   };
@@ -206,7 +220,7 @@ export const AppMonthPicker: React.FC<AppMonthPickerProps> = ({
           <div className="flex items-center justify-between mb-3">
             <button
               type="button"
-              onClick={() => setViewYear((y) => y - 1)}
+              onClick={() => setViewYear(y => y - 1)}
               disabled={!canPrevYear}
               className="p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none"
               aria-label="Previous year"
@@ -223,7 +237,7 @@ export const AppMonthPicker: React.FC<AppMonthPickerProps> = ({
             </span>
             <button
               type="button"
-              onClick={() => setViewYear((y) => y + 1)}
+              onClick={() => setViewYear(y => y + 1)}
               disabled={!canNextYear}
               className="p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none"
               aria-label="Next year"

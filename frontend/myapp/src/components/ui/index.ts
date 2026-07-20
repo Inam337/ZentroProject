@@ -1,5 +1,7 @@
 import { lazy } from 'react';
 
+import { lazyWithSuspense } from '@/components/ui/lazy-with-suspense';
+
 // Lazy load UI components on demand - only load when route renders them
 export const Button = lazy(
   () => import('@/components/ui/Button').then(module => ({
@@ -289,3 +291,17 @@ export const ThemeToggle = lazy(
     default: module.ThemeToggle,
   })),
 );
+
+const PageShellLazy = lazy(() => import('@/components/ui/PageShell'));
+const PageToolbarLazy = lazy(() => import('@/components/ui/PageToolbar'));
+const FilterPanelLazy = lazy(() => import('@/components/ui/FilterPanel'));
+const ListCardLazy = lazy(() => import('@/components/ui/ListCard'));
+const StatusPillLazy = lazy(() => import('@/components/ui/StatusPill'));
+const FormDrawerLazy = lazy(() => import('@/components/ui/FormDrawer'));
+
+export const PageShell = lazyWithSuspense(PageShellLazy);
+export const PageToolbar = lazyWithSuspense(PageToolbarLazy);
+export const FilterPanel = lazyWithSuspense(FilterPanelLazy);
+export const ListCard = lazyWithSuspense(ListCardLazy);
+export const StatusPill = lazyWithSuspense(StatusPillLazy);
+export const FormDrawer = lazyWithSuspense(FormDrawerLazy);

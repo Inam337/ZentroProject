@@ -56,9 +56,8 @@ export function FileUpload({
     },
     [onAttachmentsSelected, maxSize],
   );
-  // Convert accept string (MIME types) to dropzone format
-  const acceptObject = accept
-    ? accept.split(',').reduce(
+  const acceptObject = typeof accept === 'string'
+    ? accept.split(',').reduce<Record<string, string[]>>(
         (acc, mimeType) => {
           const trimmed = mimeType.trim();
 
@@ -68,9 +67,9 @@ export function FileUpload({
 
           return acc;
         },
-        {} as Record<string, string[]>,
+        {},
       )
-    : undefined;
+    : accept;
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     accept: acceptObject,
