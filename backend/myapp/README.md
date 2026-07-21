@@ -33,10 +33,12 @@ See [docs/data.md](./docs/data.md).
 
 ## Docs
 
+- [**Full project context**](../docs/project.md)
 - [API reference](./docs/api-reference.md)
 - [Architecture](./docs/backend-architecture.md)
 - [Mock data](./docs/data.md)
-- [Frontend dev setup](../frontend/docs/dev-setup.md)
+- [Frontend project context](../../frontend/docs/project.md)
+- [Frontend dev setup](../../frontend/docs/dev-setup.md)
 
 ## Scripts
 

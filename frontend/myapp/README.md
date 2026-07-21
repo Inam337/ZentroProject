@@ -42,6 +42,7 @@ Full guide: [../docs/branding.md](../docs/branding.md)
 
 ## Docs
 
+- [**Full project context**](../docs/project.md)
 - [Dev setup (Phase 0)](../docs/dev-setup.md)
 - [Integration plan](../docs/architecture.md)
 - [Branding (favicon, auth, sidebar)](../docs/branding.md)

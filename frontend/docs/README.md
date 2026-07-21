@@ -2,6 +2,8 @@
 
 Index for all docs under `frontend/docs/`.
 
+**Full project context (start here):** [**project.md**](./project.md) — product summary, stack, architecture, domains, status, conventions.
+
 ---
 
 ## Implementation phases (context by phase)
@@ -29,6 +31,7 @@ Index for all docs under `frontend/docs/`.
 
 | Doc | Use when |
 |-----|----------|
+| [**project.md**](./project.md) | Full product + technical context |
 | [dev-setup.md](./dev-setup.md) | First-time local setup (Phase 0) |
 | [seed.md](./seed.md) | Demo database + verify seed |
 | [routes.md](./routes.md) | URL map and role visibility |
@@ -44,6 +47,7 @@ Index for all docs under `frontend/docs/`.
 
 | Doc | Path |
 |-----|------|
+| **Full project context** | [`backend/docs/project.md`](../../backend/docs/project.md) |
 | API reference | `backend/myapp/docs/api-reference.md` |
 | Backend architecture | `backend/myapp/docs/backend-architecture.md` |
 | Demo data (API) | `backend/myapp/docs/data.md` |
