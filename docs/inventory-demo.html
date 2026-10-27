@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zentro Inventory Demo</title>
+<style>
+  :root { --ink:#1A312C; --teal:#428475; --mint:#89D7B7; --beige:#FFF4E1; --line:#e5e7eb; --bad:#b91c1c; --warn:#b45309; --ok:#15803d; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 system-ui, sans-serif; color:var(--ink); background:var(--beige); }
+  header { background:var(--ink); color:#fff; padding:14px 20px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; }
+  header h1 { font-size:18px; margin:0; }
+  header small { opacity:.75; display:block; font-weight:400; }
+  main { max-width:1150px; margin:0 auto; padding:16px; display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  section { background:#fff; border-radius:10px; padding:14px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  section.wide { grid-column: 1 / -1; }
+  h2 { font-size:14px; margin:0 0 10px; text-transform:uppercase; letter-spacing:.04em; color:var(--teal); }
+  .kpis { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap:10px; }
+  .kpi { background:var(--beige); border-radius:8px; padding:10px; }
+  .kpi b { display:block; font-size:20px; }
+  .kpi span { font-size:11px; text-transform:uppercase; color:#555; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); font-size:13px; }
+  th { font-size:11px; text-transform:uppercase; color:#666; }
+  .badge { padding:2px 8px; border-radius:99px; font-size:11px; font-weight:600; }
+  .ok { background:#dcfce7; color:var(--ok); } .low { background:#fef3c7; color:var(--warn); } .out { background:#fee2e2; color:var(--bad); }
+  label { display:block; font-size:12px; color:#555; margin:6px 0 2px; }
+  select, input { width:100%; padding:7px 8px; border:1px solid #cbd5e1; border-radius:6px; font:inherit; }
+  .row { display:grid; grid-template-columns: 2fr 1fr 1fr; gap:8px; }
+  button { background:var(--teal); color:#fff; border:0; border-radius:6px; padding:8px 12px; font:inherit; font-weight:600; cursor:pointer; margin-top:8px; }
+  button.alt { background:#e5e7eb; color:var(--ink); }
+  button:hover { filter:brightness(1.08); }
+  .roles button { margin:0; background:#ffffff22; border:1px solid #ffffff55; }
+  .roles button.on { background:var(--mint); color:var(--ink); border-color:var(--mint); }
+  .log { max-height:260px; overflow:auto; font:12px/1.5 ui-monospace, Consolas, monospace; }
+  .log div { padding:3px 6px; border-bottom:1px dashed var(--line); }
+  .s2 { color:var(--ok); font-weight:700; } .s4 { color:var(--bad); font-weight:700; }
+  .pos { color:var(--ok); font-weight:700; } .neg { color:var(--bad); font-weight:700; }
+  .note { font-size:12px; color:#555; margin:0 0 8px; }
+  .toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:10px 16px; border-radius:8px; max-width:90vw; display:none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Zentro Inventory — rules demo <small>Runs entirely in your browser. It mirrors the NestJS logic (RolesGuard, stock ledger, transactions); it does not call the real API.</small></h1>
+  <div class="roles" id="roles"></div>
+</header>
+
+<main>
+  <section class="wide"><h2>Dashboard (GET /reports/dashboard)</h2><div class="kpis" id="kpis"></div></section>
+
+  <section>
+    <h2>Stock levels (GET /stocks/summary)</h2>
+    <table><thead><tr><th>Product</th><th>On hand</th><th>Reorder</th><th>Status</th></tr></thead><tbody id="levels"></tbody></table>
+  </section>
+
+  <section>
+    <h2>Actions</h2>
+    <p class="note">Switch the role (top right) and try each action. Admin-only routes reject shoppers with 403 and anonymous callers with 401.</p>
+    <label>Product</label><select id="product"></select>
+    <div class="row">
+      <div><label>Quantity</label><input id="qty" type="number" min="1" value="5"></div>
+      <div><label>Unit price</label><input id="price" type="number" min="0" value="100"></div>
+      <div><label>Stock set to (adjust)</label><input id="setqty" type="number" min="0" value="3"></div>
+    </div>
+    <button id="bPurchase">POST /purchases (receive)</button>
+    <button id="bSale">POST /sales</button>
+    <button id="bOrder">POST /orders/checkout</button>
+    <button id="bCancel" class="alt">PUT /orders/:id/status → cancelled (last order)</button>
+    <button id="bAdjust" class="alt">PUT /stocks/:id (manual adjust)</button>
+    <button id="bReset" class="alt">Reset demo</button>
+  </section>
+
+  <section>
+    <h2>Request log</h2>
+    <div class="log" id="log"></div>
+  </section>
+
+  <section>
+    <h2>Stock movements (GET /stocks/movements)</h2>
+    <div class="log" id="moves"></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script id="engine">
+// ---- Engine: same rules as the backend, no DOM access -----------------------
+function createEngine() {
+  const seed = () => ({
+    products: [
+      { id: 1, name: 'Widget A', type: 'goods', reorder: 10, price: 120, qty: 25 },
+      { id: 2, name: 'Widget B', type: 'goods', reorder: 5, price: 300, qty: 6 },
+      { id: 3, name: 'USB Cable', type: 'goods', reorder: 20, price: 80, qty: 0 },
+      { id: 4, name: 'Installation (service)', type: 'service', reorder: 0, price: 1500, qty: 0 },
+    ],
+    movements: [], sales: [], purchases: [], orders: [], nextId: 1,
+  });
+  let db = seed();
+  const users = { admin: { id: 1, role: 'admin' }, shopper: { id: 2, role: 'user' } };
+
+  const err = (status, message) => ({ status, body: { message } });
+  const ok = (body, status = 200) => ({ status, body });
+
+  // JwtAuthGuard + RolesGuard
+  function guard(role, needAdmin) {
+    if (!users[role]) return err(401, 'Missing authorization token');
+    if (needAdmin && users[role].role !== 'admin') return err(403, 'Admin access required');
+    return null;
+  }
+  const find = (id) => db.products.find((p) => p.id === id);
+  const tracks = (p) => p.type === 'goods';
+
+  // InventoryService.increase / decrease — mutate a draft; caller commits.
+  function increase(draft, pid, q, type, ref, user) {
+    const p = draft.products.find((x) => x.id === pid);
+    if (!tracks(p)) return;
+    p.qty += q;
+    draft.movements.unshift({ at: new Date(), product: p.name, change: q, type, ref, user });
+  }
+  function decrease(draft, pid, q, type, ref, user) {
+    const p = draft.products.find((x) => x.id === pid);
+    if (!tracks(p)) return;
+    if (p.qty < q) throw Object.assign(new Error(`Insufficient stock for "${p.name}": requested ${q}, available ${p.qty}`), { http: 400 });
+    p.qty -= q;
+    draft.movements.unshift({ at: new Date(), product: p.name, change: -q, type, ref, user });
+  }
+  // dataSource.transaction: work on a copy, commit only if nothing throws.
+  function transaction(fn) {
+    const draft = structuredClone(db);
+    try { const out = fn(draft); db = draft; return out; }
+    catch (e) { if (e.http) return err(e.http, e.message); throw e; }
+  }
+  const status = (p) => (p.qty === 0 ? 'out' : p.qty <= p.reorder ? 'low' : 'ok');
+
+  function request(role, method, path, body = {}) {
+    const adminOnly = !path.startsWith('/orders');
+    const denied = guard(role, adminOnly);
+    if (denied) return denied;
+    const user = users[role].id;
+
+    if (method === 'POST' && path === '/purchases') {
+      return transaction((d) => {
+        const id = d.nextId++;
+        d.purchases.push({ id, total: body.qty * body.price, at: new Date() });
+        increase(d, body.productId, body.qty, 'purchase', id, user);
+        return ok({ id }, 201);
+      });
+    }
+    if (method === 'POST' && path === '/sales') {
+      return transaction((d) => {
+        const id = d.nextId++;
+        d.sales.push({ id, total: body.qty * body.price, at: new Date() });
+        decrease(d, body.productId, body.qty, 'sale', id, user);
+        return ok({ id }, 201);
+      });
+    }
+    if (method === 'POST' && path === '/orders/checkout') {
+      return transaction((d) => {
+        const id = d.nextId++;
+        d.orders.push({ id, status: 'pending', productId: body.productId, qty: body.qty });
+        decrease(d, body.productId, body.qty, 'order', id, user);
+        return ok({ id, status: 'pending' }, 201);
+      });
+    }
+    if (method === 'PUT' && path.startsWith('/orders/') && path.endsWith('/status')) {
+      const order = db.orders.find((o) => o.id === Number(path.split('/')[2]));
+      if (!order) return err(404, 'Order not found');
+      return transaction((d) => {
+        const o = d.orders.find((x) => x.id === order.id);
+        if (o.status !== 'cancelled' && body.status === 'cancelled') increase(d, o.productId, o.qty, 'order_reversal', o.id, user);
+        o.status = body.status;
+        return ok({ id: o.id, status: o.status });
+      });
+    }
+    if (method === 'PUT' && path.startsWith('/stocks/')) {
+      return transaction((d) => {
+        const p = d.products.find((x) => x.id === Number(path.split('/')[2]));
+        const delta = body.quantity - p.qty;
+        if (delta !== 0) { p.qty = body.quantity; d.movements.unshift({ at: new Date(), product: p.name, change: delta, type: 'adjustment', ref: null, user }); }
+        return ok({ id: p.id, quantity: p.qty });
+      });
+    }
+    return err(404, 'Not found');
+  }
+
+  const state = () => db;
+  const reset = () => { db = seed(); };
+  const summary = () => db.products.filter(tracks).map((p) => ({ ...p, status: status(p), value: p.qty * p.price }));
+  const dashboard = () => {
+    const s = summary();
+    return {
+      stockValue: s.reduce((a, r) => a + r.value, 0),
+      stockUnits: s.reduce((a, r) => a + r.qty, 0),
+      low: s.filter((r) => r.status === 'low').length,
+      out: s.filter((r) => r.status === 'out').length,
+      salesToday: db.sales.reduce((a, r) => a + r.total, 0),
+      purchasesToday: db.purchases.reduce((a, r) => a + r.total, 0),
+    };
+  };
+  return { request, state, reset, summary, dashboard };
+}
+</script>
+
+<script>
+// ---- UI ---------------------------------------------------------------------
+const eng = createEngine();
+let role = 'admin';
+const $ = (id) => document.getElementById(id);
+const money = (n) => 'PKR ' + n.toLocaleString();
+
+['admin', 'shopper', 'anonymous'].forEach((r) => {
+  const b = document.createElement('button');
+  b.textContent = r === 'anonymous' ? 'No token' : r[0].toUpperCase() + r.slice(1);
+  b.onclick = () => { role = r; render(); };
+  b.dataset.role = r;
+  $('roles').appendChild(b);
+});
+
+function call(method, path, body) {
+  const res = eng.request(role, method, path, body);
+  const line = document.createElement('div');
+  const cls = res.status < 300 ? 's2' : 's4';
+  line.innerHTML = `<span class="${cls}">${res.status}</span> ${method} ${path} <i>(${role})</i> — ${res.body.message ?? JSON.stringify(res.body)}`;
+  $('log').prepend(line);
+  if (res.status >= 300) toast(res.body.message);
+  render();
+  return res;
+}
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => (t.style.display = 'none'), 3200); }
+const pid = () => Number($('product').value);
+const num = (id) => Number($(id).value);
+let lastOrderId = null;
+
+$('bPurchase').onclick = () => call('POST', '/purchases', { productId: pid(), qty: num('qty'), price: num('price') });
+$('bSale').onclick = () => call('POST', '/sales', { productId: pid(), qty: num('qty'), price: num('price') });
+$('bOrder').onclick = () => { const r = call('POST', '/orders/checkout', { productId: pid(), qty: num('qty') }); if (r.status === 201) lastOrderId = r.body.id; };
+$('bCancel').onclick = () => lastOrderId ? call('PUT', `/orders/${lastOrderId}/status`, { status: 'cancelled' }) : toast('Place an order first.');
+$('bAdjust').onclick = () => call('PUT', `/stocks/${pid()}`, { quantity: num('setqty') });
+$('bReset').onclick = () => { eng.reset(); lastOrderId = null; $('log').innerHTML = ''; render(); };
+
+function render() {
+  document.querySelectorAll('#roles button').forEach((b) => b.classList.toggle('on', b.dataset.role === role));
+  const d = eng.dashboard();
+  $('kpis').innerHTML = [
+    ['Stock value', money(d.stockValue)], ['Units on hand', d.stockUnits], ['Low stock', d.low], ['Out of stock', d.out],
+    ['Sales today', money(d.salesToday)], ['Purchases today', money(d.purchasesToday)],
+  ].map(([l, v]) => `<div class="kpi"><span>${l}</span><b>${v}</b></div>`).join('');
+  $('levels').innerHTML = eng.summary().map((r) =>
+    `<tr><td>${r.name}</td><td>${r.qty}</td><td>${r.reorder}</td><td><span class="badge ${r.status}">${r.status.toUpperCase()}</span></td></tr>`).join('');
+  const sel = $('product'); const keep = sel.value;
+  sel.innerHTML = eng.state().products.map((p) => `<option value="${p.id}">${p.name}</option>`).join('');
+  if (keep) sel.value = keep;
+  $('moves').innerHTML = eng.state().movements.map((m) =>
+    `<div><span class="${m.change > 0 ? 'pos' : 'neg'}">${m.change > 0 ? '+' : ''}${m.change}</span> ${m.product} · ${m.type.replace('_', ' ')}${m.ref ? ' #' + m.ref : ''} · ${m.at.toLocaleTimeString()}</div>`).join('')
+    || '<div>No movements yet — receive a purchase or record a sale.</div>';
+}
+render();
+</script>
+</body>
+</html>

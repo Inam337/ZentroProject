@@ -6,11 +6,47 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_DB: ShopDB
     ports:
-      - '5432:5432'
+      - '${DB_HOST_PORT:-5437}:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d ShopDB']
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
-  
+  backend:
+    build: ./backend/myapp
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: root
+      DB_NAME: ShopDB
+      JWT_SECRET: mySuperSecretJWTKey123
+      JWT_REFRESH_SECRET: mySuperSecretJWTRefreshKey456
+      JWT_EXPIRES_IN: 1h
+      JWT_REFRESH_EXPIRES_IN: 7d
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./backend/myapp/src:/app/src
+
+  frontend:
+    build: ./frontend/myapp
+    depends_on:
+      - backend
+    environment:
+      VITE_API_BASE_URL: ''
+      VITE_API_PROXY_TARGET: http://backend:3000
+    ports:
+      - '${FRONTEND_HOST_PORT:-5175}:5173'
+    volumes:
+      - ./frontend/myapp/src:/app/src
 
 volumes:
   pgdata:
