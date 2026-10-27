@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PurchaseItem } from '../entities/purchase.item.entity';
 import { Product } from '../entities/product.entity';
@@ -8,7 +9,7 @@ import { PurchaseItemController } from './purchase.item.controller';
 import { PurchaseItemRepository } from './purchase.item.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PurchaseItem, Product, Purchase])],
+  imports: [AuthModule, TypeOrmModule.forFeature([PurchaseItem, Product, Purchase])],
   providers: [PurchaseItemRepository, PurchaseItemService],
   controllers: [PurchaseItemController],
   exports: [PurchaseItemRepository, TypeOrmModule],

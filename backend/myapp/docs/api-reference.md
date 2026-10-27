@@ -250,3 +250,23 @@ Create/update example:
 6. Checkout with `POST /orders/checkout`.
 7. Create payment with `POST /payments`.
 8. Update payment status with `PUT /payments/:id/status`.
+
+---
+
+## Inventory upgrade (admin only unless noted)
+
+See [`docs/INVENTORY_UPGRADE.md`](../../../docs/INVENTORY_UPGRADE.md) for behaviour details.
+
+| Method | Path | Notes |
+|--------|------|-------|
+| GET | `/stocks/summary` | Per-product total, value, status (`ok` / `low` / `out`) |
+| GET | `/stocks/low` | Products at or below reorder level |
+| GET | `/stocks/movements` | Paginated audit trail: `page`, `limit`, `productId`, `type` |
+| GET | `/stocks?page=&limit=&search=` | Paginated only when `page` is sent; otherwise plain array |
+| GET | `/purchases?page=&limit=`, `/sales?page=&limit=` | Paginated only when `page` is sent; otherwise plain array |
+| POST | `/purchases/:id/cancel`, `/sales/:id/cancel` | Reverses stock, keeps the record (`status: cancelled`) |
+| GET | `/reports/stock-by-category` | Units and value per category |
+| GET | `/reports/dashboard` | KPI snapshot |
+| GET | `/reports/sales-purchases` | `from`, `to` (ISO dates); daily series |
+
+Behaviour changes: purchases add stock; sales and checkout deduct stock and return `400` when insufficient; `POST /sales` accepts optional `customerId`. Inventory CRUD, users and mutating product/category routes now require an admin JWT (`401` no token, `403` not admin).

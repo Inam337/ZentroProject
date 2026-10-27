@@ -4,6 +4,7 @@ import { FindOptionsRelations, Repository } from 'typeorm';
 import { Sale } from '../entities/sale.entity';
 
 const DEFAULT_RELATIONS: FindOptionsRelations<Sale> = {
+  customer: true,
   items: {
     product: true,
   },
@@ -28,6 +29,18 @@ export class SaleRepository {
     return this.repo.find({
       relations: DEFAULT_RELATIONS,
       order: { id: 'DESC' },
+    });
+  }
+
+  async findPageWithRelations(
+    page: number,
+    limit: number,
+  ): Promise<[Sale[], number]> {
+    return this.repo.findAndCount({
+      relations: DEFAULT_RELATIONS,
+      order: { id: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
   }
 

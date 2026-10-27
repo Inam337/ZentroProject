@@ -7,24 +7,33 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { SaleService } from './sale.service';
 import { Sale } from '../entities/sale.entity';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
 
+import { CurrentUserId } from '../common/decorators/current-user-id.decorator';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { AdminOnly } from '../auth/roles.decorator';
+
+@AdminOnly()
 @Controller('sales')
 export class SaleController {
   constructor(private readonly saleService: SaleService) {}
 
   @Post()
-  create(@Body() body: CreateSaleDto): Promise<Sale> {
-    return this.saleService.create(body);
+  create(
+    @Body() body: CreateSaleDto,
+    @CurrentUserId() userId: number,
+  ): Promise<Sale> {
+    return this.saleService.create(body, userId);
   }
 
   @Get()
-  findAll(): Promise<Sale[]> {
-    return this.saleService.findAll();
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.saleService.findAll(query);
   }
 
   @Get(':id')
@@ -36,12 +45,24 @@ export class SaleController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateSaleDto,
+    @CurrentUserId() userId: number,
   ): Promise<Sale> {
-    return this.saleService.update(id, body);
+    return this.saleService.update(id, body, userId);
+  }
+
+  @Post(':id/cancel')
+  cancel(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUserId() userId: number,
+  ): Promise<Sale> {
+    return this.saleService.cancel(id, userId);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.saleService.remove(id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUserId() userId: number,
+  ): Promise<void> {
+    return this.saleService.remove(id, userId);
   }
 }

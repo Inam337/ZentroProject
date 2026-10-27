@@ -13,10 +13,13 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from '../entities/product.entity';
 
+import { AdminOnly } from '../auth/roles.decorator';
+
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @AdminOnly()
   @Post()
   create(@Body() body: CreateProductDto): Promise<Product> {
     return this.productService.create(body);
@@ -32,6 +35,7 @@ export class ProductController {
     return this.productService.findOne(id);
   }
 
+  @AdminOnly()
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -40,6 +44,7 @@ export class ProductController {
     return this.productService.update(id, body);
   }
 
+  @AdminOnly()
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.productService.remove(id);

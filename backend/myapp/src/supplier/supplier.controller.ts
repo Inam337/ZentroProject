@@ -13,6 +13,9 @@ import { Supplier } from '../entities/supplier.entity';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
 
+import { AdminOnly } from '../auth/roles.decorator';
+
+@AdminOnly()
 @Controller('suppliers')
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}

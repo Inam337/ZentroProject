@@ -7,6 +7,7 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
@@ -30,6 +31,7 @@ interface ChangePasswordDto {
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('register')
   async register(@Body() registerData: RegisterDto) {
     try {
@@ -55,6 +57,7 @@ export class AuthController {
     }
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('login')
   async login(@Body() loginData: LoginDto) {
     try {

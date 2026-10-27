@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Sale } from '../entities/sale.entity';
 import { SaleItem } from '../entities/sale.item.entity';
 import { Product } from '../entities/product.entity';
+import { InventoryModule } from '../inventory/inventory.module';
+import { Customer } from '../entities/customer.entity';
 import { SaleService } from './sale.service';
 import { SaleController } from './sale.controller';
 import { SaleRepository } from './sale.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Sale, SaleItem, Product])],
+  imports: [AuthModule, InventoryModule, TypeOrmModule.forFeature([Sale, SaleItem, Product, Customer])],
   controllers: [SaleController],
   providers: [SaleRepository, SaleService],
   exports: [SaleRepository, TypeOrmModule],

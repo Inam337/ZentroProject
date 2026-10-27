@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import helmet from 'helmet';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import { AppModule } from './app.module';
@@ -21,6 +22,16 @@ function getCorsOrigins(): string[] {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Security headers. CSP is off because the API serves JSON plus the Swagger/
+  // Scalar docs pages (which load scripts from a CDN); CORP is relaxed so the
+  // SPA on another origin can read responses.
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
 
   // Phase 0: allow Vite dev server (and preview) to call the API from the browser.
   // Production: set CORS_ORIGINS=https://your-frontend.example.com

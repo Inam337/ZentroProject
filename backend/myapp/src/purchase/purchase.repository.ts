@@ -32,6 +32,18 @@ export class PurchaseRepository {
     });
   }
 
+  async findPageWithRelations(
+    page: number,
+    limit: number,
+  ): Promise<[Purchase[], number]> {
+    return this.repo.findAndCount({
+      relations: DEFAULT_RELATIONS,
+      order: { id: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+  }
+
   async findByIdWithRelations(id: number): Promise<Purchase | null> {
     return this.repo.findOne({
       where: { id },

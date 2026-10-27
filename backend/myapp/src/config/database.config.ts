@@ -13,6 +13,7 @@ import { Cart } from '../cart/entities/cart.entity';
 import { CartItem } from '../cart/entities/cart-item.entity';
 import { Order } from '../order/entities/order.entity';
 import { OrderItem } from '../order-item/entities/order-item.entity';
+import { StockMovement } from '../entities/stock-movement.entity';
 import { Payment } from '../payment/entities/payment.entity';
 
 export const DatabaseConfigOptions: DataSourceOptions = {
@@ -38,7 +39,9 @@ export const DatabaseConfigOptions: DataSourceOptions = {
     Order,
     OrderItem,
     Payment,
+    StockMovement,
   ],
-  synchronize: true,
-  logging: true,
+  // Never auto-sync the schema in production; use migrations instead.
+  synchronize: process.env.NODE_ENV !== 'production',
+  logging: process.env.DB_LOGGING === 'true',
 };

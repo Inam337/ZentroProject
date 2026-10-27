@@ -15,6 +15,9 @@ import { Users } from '../entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 
+import { AdminOnly } from '../auth/roles.decorator';
+
+@AdminOnly()
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

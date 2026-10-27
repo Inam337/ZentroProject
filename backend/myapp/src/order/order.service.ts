@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
@@ -12,13 +13,45 @@ import { OrderStatus } from '../entities/order-status.enum';
 import { Users } from '../entities/user.entity';
 import { OrderRepository } from './order.repository';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { InventoryService } from '../inventory/inventory.service';
+import { StockMovementType } from '../entities/stock-movement.entity';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class OrderService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly orderRepository: OrderRepository,
+    private readonly inventory: InventoryService,
   ) {}
+
+  private async deductStock(
+    manager: EntityManager,
+    order: Order,
+    userId: number,
+  ): Promise<void> {
+    for (const line of order.items) {
+      await this.inventory.decrease(manager, line.product.id, line.quantity, {
+        type: StockMovementType.ORDER,
+        referenceId: order.id,
+        userId,
+      });
+    }
+  }
+
+  private async restoreStock(
+    manager: EntityManager,
+    order: Order,
+    userId: number,
+  ): Promise<void> {
+    for (const line of order.items) {
+      await this.inventory.increase(manager, line.product.id, line.quantity, {
+        type: StockMovementType.ORDER_REVERSAL,
+        referenceId: order.id,
+        userId,
+      });
+    }
+  }
 
   async createOrder(userId: number): Promise<Order> {
     return this.dataSource.transaction(async (manager) => {
@@ -76,10 +109,13 @@ export class OrderService {
 
       await cartItemRepo.delete({ cart: { id: cart.id } });
 
-      return orderRepo.findOneOrFail({
+      const created = await orderRepo.findOneOrFail({
         where: { id: saved.id },
         relations: ['items', 'items.product'],
       });
+      // Fails the whole checkout (and rolls back the order) if stock is short.
+      await this.deductStock(manager, created, userId);
+      return created;
     });
   }
 
@@ -100,14 +136,38 @@ export class OrderService {
     orderId: number,
     dto: UpdateOrderStatusDto,
   ): Promise<Order> {
+    // Shoppers may only cancel their own order; confirming is an admin action.
+    if (dto.status !== OrderStatus.CANCELLED) {
+      const user = await this.dataSource
+        .getRepository(Users)
+        .findOne({ where: { id: userId }, select: ['id', 'role'] });
+      if (user?.role !== 'admin') {
+        throw new ForbiddenException('Only an admin can set this status');
+      }
+    }
+
     const order = await this.findOneForUser(userId, orderId);
-    order.status = dto.status;
-    await this.orderRepository.save(order);
+    const previous = order.status;
+    await this.dataSource.transaction(async (manager) => {
+      // Cancelling returns stock; un-cancelling takes it out again.
+      if (previous !== OrderStatus.CANCELLED && dto.status === OrderStatus.CANCELLED) {
+        await this.restoreStock(manager, order, userId);
+      } else if (previous === OrderStatus.CANCELLED && dto.status !== OrderStatus.CANCELLED) {
+        await this.deductStock(manager, order, userId);
+      }
+      order.status = dto.status;
+      await manager.getRepository(Order).save(order);
+    });
     return this.findOneForUser(userId, orderId);
   }
 
   async removeForUser(userId: number, orderId: number): Promise<void> {
     const order = await this.findOneForUser(userId, orderId);
-    await this.orderRepository.remove(order);
+    await this.dataSource.transaction(async (manager) => {
+      if (order.status !== OrderStatus.CANCELLED) {
+        await this.restoreStock(manager, order, userId);
+      }
+      await manager.getRepository(Order).remove(order);
+    });
   }
 }

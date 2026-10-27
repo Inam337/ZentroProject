@@ -1,5 +1,6 @@
 import { PurchaseItem } from './purchase.item.entity';
 import { Supplier } from './supplier.entity';
+import { DocumentStatus } from './document-status.enum';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -24,6 +25,13 @@ export class Purchase {
 
   @Column('decimal', { precision: 10, scale: 2 })
   totalAmount: number;
+
+  @Column({
+    type: 'enum',
+    enum: DocumentStatus,
+    default: DocumentStatus.COMPLETED,
+  })
+  status: DocumentStatus;
 
   @CreateDateColumn()
   purchasedAt: Date;

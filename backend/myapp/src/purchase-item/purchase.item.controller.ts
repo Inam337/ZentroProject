@@ -13,6 +13,9 @@ import { PurchaseItem } from '../entities/purchase.item.entity';
 import { CreatePurchaseItemDto } from './dto/create-purchase-item.dto';
 import { UpdatePurchaseItemDto } from './dto/update-purchase-item.dto';
 
+import { AdminOnly } from '../auth/roles.decorator';
+
+@AdminOnly()
 @Controller('purchase-items')
 export class PurchaseItemController {
   constructor(private readonly purchaseItemService: PurchaseItemService) {}

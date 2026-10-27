@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -19,6 +21,8 @@ import { CartModule } from './cart/cart.module';
 import { CartItemModule } from './cart-item/cart-item.module';
 import { OrderModule } from './order/order.module';
 import { OrderItemModule } from './order-item/order-item.module';
+import { ReportsModule } from './reports/reports.module';
+import { InventoryModule } from './inventory/inventory.module';
 import { PaymentModule } from './payment/payment.module';
 
 @Module({
@@ -26,6 +30,8 @@ import { PaymentModule } from './payment/payment.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    // 300 requests / minute / IP by default; /auth/login and /auth/register are stricter.
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }]),
     TypeOrmModule.forRoot(DatabaseConfigOptions),
     CustomersModule,
     UserModule,
@@ -43,8 +49,10 @@ import { PaymentModule } from './payment/payment.module';
     OrderModule,
     OrderItemModule,
     PaymentModule,
+    InventoryModule,
+    ReportsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

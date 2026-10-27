@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsNumber, Min } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class SaleLineDto {
   @Type(() => Number)
@@ -12,8 +12,10 @@ export class SaleLineDto {
   @Min(1)
   quantity: number;
 
+  /** Optional discount override; defaults to the catalog price. */
+  @IsOptional()
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
-  unitPrice: number;
+  unitPrice?: number;
 }

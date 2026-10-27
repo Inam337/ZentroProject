@@ -13,6 +13,9 @@ import { Customer } from '../entities/customer.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 
+import { AdminOnly } from '../auth/roles.decorator';
+
+@AdminOnly()
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}

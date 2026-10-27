@@ -13,6 +13,9 @@ import { SaleItem } from '../entities/sale.item.entity';
 import { CreateSaleItemDto } from './dto/create-sale-item.dto';
 import { UpdateSaleItemDto } from './dto/update-sale-item.dto';
 
+import { AdminOnly } from '../auth/roles.decorator';
+
+@AdminOnly()
 @Controller('sale-items')
 export class SaleItemController {
   constructor(private readonly saleItemService: SaleItemService) {}

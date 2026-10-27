@@ -8,11 +8,13 @@ import { OrderService } from './order.service';
 import { OrderController } from './order.controller';
 import { OrderRepository } from './order.repository';
 import { AuthModule } from '../auth/auth.module';
+import { InventoryModule } from '../inventory/inventory.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderItem, Cart, CartItem]),
     AuthModule,
+    InventoryModule,
   ],
   providers: [OrderRepository, OrderService],
   controllers: [OrderController],

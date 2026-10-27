@@ -13,6 +13,8 @@ import { Category } from '../entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+import { AdminOnly } from '../auth/roles.decorator';
+
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
@@ -27,11 +29,13 @@ export class CategoryController {
     return this.categoryService.findOne(id);
   }
 
+  @AdminOnly()
   @Post()
   create(@Body() body: CreateCategoryDto): Promise<Category> {
     return this.categoryService.create(body);
   }
 
+  @AdminOnly()
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -40,6 +44,7 @@ export class CategoryController {
     return this.categoryService.update(id, body);
   }
 
+  @AdminOnly()
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.categoryService.remove(id);
