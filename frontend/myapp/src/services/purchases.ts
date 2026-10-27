@@ -10,6 +10,9 @@ import { apiDelete, apiGet, apiPost, apiPut } from '@/services/api-request';
 export const listPurchases = (): Promise<ApiResult<Purchase[]>> =>
   apiGet<Purchase[]>(AppConstants.ApiUrls.Purchases);
 
+export const cancelPurchase = (id: number | string): Promise<ApiResult<Purchase>> =>
+  apiPost<Purchase>(AppConstants.ApiUrlBuilders.purchaseCancel(id));
+
 export const getPurchase = (id: number | string): Promise<ApiResult<Purchase>> =>
   apiGet<Purchase>(AppConstants.ApiUrlBuilders.purchase(id));
 

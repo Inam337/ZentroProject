@@ -21,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { DataTableColumnMeta } from '@/components/ui/data-table-columns';
+import EmptyState from '@/components/ui/EmptyState';
 import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 import { cn } from '@/libs/utils';
@@ -197,7 +198,6 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const { t } = useT();
   const [sorting, setSorting] = useState<SortingState>([]);
-  const RECORDS_ICON_SIZE = 24;
   const table = useReactTable({
     data,
     columns,
@@ -329,21 +329,7 @@ export function DataTable<TData, TValue>({
                         colSpan={columns.length}
                         className="h-40 border-0 text-center"
                       >
-                        <div
-                          className={[
-                            'flex w-full flex-col items-center justify-center',
-                            'gap-3 py-10 text-center text-gray-500',
-                          ].join(' ')}
-                        >
-                          <div className="rounded-xl border border-gray-200 bg-[#FCF9F4] p-4">
-                            <RbIcon
-                              name="file"
-                              size={RECORDS_ICON_SIZE}
-                              color={IconColors.GRAY_COLOR_ICON}
-                            />
-                          </div>
-                          <p className="text-sm">{resolvedEmptyMessage}</p>
-                        </div>
+                        <EmptyState message={resolvedEmptyMessage} />
                       </TableCell>
                     </TableRow>
                   )}

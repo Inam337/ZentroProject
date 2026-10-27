@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useT } from '@/hooks/use-t';
 
+import EmptyState from '@/components/ui/EmptyState';
 import AppButton from '@/components/ui/AppButton';
 
 type CommercePageStateProps = {
@@ -50,10 +51,7 @@ export default function CommercePageState({
 
   if (empty) {
     return (
-      <p className="text-sm text-gray-500 py-8 text-center">
-        {emptyMessage
-          ?? t('commerce.empty', 'Nothing to show yet.')}
-      </p>
+      <EmptyState message={emptyMessage ?? t('commerce.empty', 'Nothing to show yet.')} />
     );
   }
 

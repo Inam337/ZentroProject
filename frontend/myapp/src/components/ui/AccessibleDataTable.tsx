@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
+import EmptyState from '@/components/ui/EmptyState';
 import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 
@@ -198,9 +199,9 @@ function AccessibleDataTable<T>({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length + (selectable ? 1 : 0)}
-                    className="text-center py-8 text-gray-500"
+                    className="text-center"
                   >
-                    {emptyMessage}
+                    <EmptyState message={emptyMessage} />
                   </TableCell>
                 </TableRow>
               )

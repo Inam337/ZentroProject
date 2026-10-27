@@ -10,6 +10,9 @@ import { apiDelete, apiGet, apiPost, apiPut } from '@/services/api-request';
 export const listSales = (): Promise<ApiResult<Sale[]>> =>
   apiGet<Sale[]>(AppConstants.ApiUrls.Sales);
 
+export const cancelSale = (id: number | string): Promise<ApiResult<Sale>> =>
+  apiPost<Sale>(AppConstants.ApiUrlBuilders.saleCancel(id));
+
 export const getSale = (id: number | string): Promise<ApiResult<Sale>> =>
   apiGet<Sale>(AppConstants.ApiUrlBuilders.sale(id));
 

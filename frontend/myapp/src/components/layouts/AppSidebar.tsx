@@ -48,7 +48,7 @@ function SidebarPanel({
           : null}
       </div>
 
-      <div className="flex-1 overflow-y-auto py-4">
+      <div className="sidebar-scroll min-h-0 flex-1 py-4">
         <NestingNav
           items={filteredMenuItems}
           collapsed={collapsed}
@@ -94,7 +94,7 @@ export function AppSidebar() {
           : null}
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-50 flex w-56 flex-col shadow-xl',
+            'fixed inset-y-0 left-0 z-50 flex h-dvh w-64 max-w-[85vw] flex-col shadow-xl',
             'bg-sidebar text-white transition-transform duration-200 lg:hidden',
             mobileOpen ? 'translate-x-0' : '-translate-x-full',
           )}
@@ -110,7 +110,7 @@ export function AppSidebar() {
   }
 
   return (
-    <aside className={cn(sidebarClasses, 'min-h-screen')}>
+    <aside className={cn(sidebarClasses, 'sticky top-0 h-screen self-start')}>
       <SidebarPanel collapsed={collapsed} />
       <div
         className={cn(

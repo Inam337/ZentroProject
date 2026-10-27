@@ -35,6 +35,8 @@ export function NestingNav({ items, collapsed, onNavigate }: NestingNavProps) {
   const location = useLocation();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [flyoutKey, setFlyoutKey] = useState<string | null>(null);
+  // Fixed coordinates so the flyout is not clipped by the sidebar's scroll container.
+  const [flyoutTop, setFlyoutTop] = useState(0);
 
   useEffect(() => {
     const next: Record<string, boolean> = {};
@@ -97,7 +99,10 @@ export function NestingNav({ items, collapsed, onNavigate }: NestingNavProps) {
               <button
                 type="button"
                 title={label}
-                onClick={() => setFlyoutKey(prev => (prev === item.title ? null : item.title))}
+                onClick={(e) => {
+                  setFlyoutTop(e.currentTarget.getBoundingClientRect().top);
+                  setFlyoutKey(prev => (prev === item.title ? null : item.title));
+                }}
                 className={cn(linkClass(parentActive || childActive), 'w-full')}
               >
                 <RbIcon
@@ -109,9 +114,10 @@ export function NestingNav({ items, collapsed, onNavigate }: NestingNavProps) {
               {flyoutKey === item.title
                 ? (
                     <div
+                      style={{ top: flyoutTop }}
                       className={cn(
-                        'absolute left-full top-0 z-50 ml-2 min-w-[180px]',
-                        'rounded-md border border-blue-600 bg-[#00529c] py-1 shadow-lg',
+                        'fixed left-[4.25rem] z-50 min-w-[180px]',
+                        'rounded-lg border border-white/10 bg-sidebar py-1 shadow-xl ring-1 ring-black/20',
                       )}
                     >
                       {item.items?.map(sub => (

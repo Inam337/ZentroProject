@@ -21,6 +21,7 @@ const API_ROUTE_PREFIXES = [
   'orders',
   'order-items',
   'payments',
+  'reports',
 ].join('|');
 
 export default defineConfig(({ mode }) => {
@@ -35,11 +36,17 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       strictPort: false,
+      // Bind-mounted source from a Windows host does not emit fs events in the container.
+      watch: { usePolling: true, interval: 300 },
       proxy: {
         [`^/(${API_ROUTE_PREFIXES})`]: {
           target: apiTarget,
           changeOrigin: true,
           secure: false,
+          // Full page loads of SPA routes that share an API prefix (/products,
+          // /orders, /categories, /cart) must get the app, not the API JSON.
+          bypass: (req: { headers: Record<string, string | string[] | undefined> }) =>
+            String(req.headers.accept ?? '').includes('text/html') ? '/index.html' : undefined,
         },
       },
     },

@@ -100,12 +100,24 @@ export const menuData: MenuData = {
           url: AppConstants.Routes.Private.Admin.Stock,
         },
         {
+          title: 'menu.adminInventory',
+          url: AppConstants.Routes.Private.Admin.Inventory,
+        },
+        {
           title: 'menu.adminSuppliers',
           url: AppConstants.Routes.Private.Admin.Suppliers,
         },
         {
           title: 'menu.adminPurchases',
           url: AppConstants.Routes.Private.Admin.Purchases,
+        },
+        {
+          title: 'menu.adminStockAlerts',
+          url: AppConstants.Routes.Private.Admin.StockAlerts,
+        },
+        {
+          title: 'menu.adminInvoices',
+          url: AppConstants.Routes.Private.Admin.Invoices,
         },
         {
           title: 'menu.adminSales',

@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/Table';
+import EmptyState from '@/components/ui/EmptyState';
 import { RbIcon } from '@/components/icons/common/RbIcon';
 import { IconColors } from '@/components/icons/types/RbIcon.types';
 
@@ -73,7 +74,6 @@ export function ReportingDataTable<TData, TValue>({
   fitWidth = false,
 }: ReportingDataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const RECORDS_ICON_SIZE = 24;
   const table = useReactTable({
     data,
     columns,
@@ -218,18 +218,7 @@ export function ReportingDataTable<TData, TValue>({
                         colSpan={columns.length}
                         className="h-24 text-center border-0"
                       >
-                        <div className="w-full flex flex-col justify-center items-center gap-4
-                        text-center py-8 text-gray-500"
-                        >
-                          <div className="bg-gray-100 p-4 rounded-md">
-                            <RbIcon
-                              name="file"
-                              size={RECORDS_ICON_SIZE}
-                              color={IconColors.GRAY_COLOR_ICON}
-                            />
-                          </div>
-                          No Records Found
-                        </div>
+                        <EmptyState />
                       </TableCell>
                     </TableRow>
                   )}

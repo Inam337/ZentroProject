@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
-import { useT } from '@/hooks/use-t';
+import { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, KeyRound, LogOut } from '@/components/icons/FluentIcons';
 
 import { AppConstants } from '@/common/AppConstants';
+import { ChevronDown, KeyRound, LogOut } from '@/components/icons/FluentIcons';
+import { useDismiss } from '@/hooks/use-dismiss';
+import { useT } from '@/hooks/use-t';
 import { cn } from '@/libs/utils';
 import { useAuthStore } from '@/stores/auth';
 import { useCartStore } from '@/stores/cart';
@@ -15,11 +16,21 @@ function getInitials(name: string): string {
     return '?';
   }
 
-  return parts
-    .map(part => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  return parts.map(part => part[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function Avatar({ initials, size }: { initials: string; size: 'sm' | 'lg' }) {
+  return (
+    <span
+      className={cn(
+        'flex shrink-0 items-center justify-center rounded-full font-semibold text-white',
+        size === 'sm' ? 'size-8 text-xs' : 'size-12 text-base',
+      )}
+      style={{ background: 'linear-gradient(135deg,#428475 0%,#1A312C 100%)' }}
+    >
+      {initials}
+    </span>
+  );
 }
 
 export default function HeaderProfileDropdown() {
@@ -28,120 +39,114 @@ export default function HeaderProfileDropdown() {
   const user = useAuthStore(state => state.user);
   const logout = useAuthStore(state => state.logout);
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const close = useCallback(() => setOpen(false), []);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const handlePointerDown = (event: MouseEvent) => {
-      if (containerRef.current?.contains(event.target as Node)) {
-        return;
-      }
-
-      setOpen(false);
-    };
-
-    document.addEventListener('mousedown', handlePointerDown);
-
-    return () => document.removeEventListener('mousedown', handlePointerDown);
-  }, [open]);
-
-  const handleLogout = () => {
-    setOpen(false);
-    logout();
-    useCartStore.getState().reset();
-    navigate(AppConstants.Routes.Public.Login, { replace: true });
-  };
-
-  const handleChangePassword = () => {
-    setOpen(false);
-    navigate(AppConstants.Routes.Private.Profile);
-  };
+  useDismiss(ref, open, close);
 
   if (!user) {
     return null;
   }
 
   const initials = getInitials(user.name);
+  const isAdmin = user.role === 'admin';
+
+  const handleLogout = () => {
+    close();
+    logout();
+    useCartStore.getState().reset();
+    navigate(AppConstants.Routes.Public.Login, { replace: true });
+  };
+
+  const go = (to: string) => {
+    close();
+    navigate(to);
+  };
+
+  const itemClass = 'flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors';
 
   return (
     <div
-      ref={containerRef}
+      ref={ref}
       className="relative"
     >
       <button
         type="button"
-        onClick={() => setOpen(prev => !prev)}
-        className={cn(
-          'flex items-center gap-2 rounded-full',
-          'border border-gray-200 bg-white px-2 py-1.5',
-          'hover:bg-gray-50 transition-colors',
-        )}
+        onClick={() => setOpen(o => !o)}
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-label={t('header.profile.menu', 'Account menu')}
+        className={cn(
+          'flex h-10 items-center gap-2 rounded-full border border-[#D9E7E1] bg-white/80 py-1 pl-1 pr-3',
+          'transition-colors hover:bg-[#E1F0EA]',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#428475]',
+        )}
       >
-        <span
-          className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-full',
-            'bg-gray-400 text-sm font-semibold text-white',
-          )}
-        >
-          {initials}
+        <Avatar initials={initials} size="sm" />
+        <span className="hidden min-w-0 text-left leading-tight md:block">
+          <span className="block max-w-[120px] truncate text-sm font-semibold text-[#1A312C]">{user.name}</span>
+          <span className="block text-[11px] capitalize text-gray-600">{user.role}</span>
         </span>
-        <ChevronDown
-          className={cn(
-            'h-4 w-4 text-gray-600 transition-transform',
-            open && 'rotate-180',
-          )}
-        />
+        <ChevronDown className={cn('size-4 text-gray-600 transition-transform', open && 'rotate-180')} />
       </button>
 
       {open
         ? (
             <div
               role="menu"
-              className={cn(
-                'absolute right-0 top-full z-50 mt-2 min-w-[220px]',
-                'rounded-lg border border-gray-200 bg-white py-2 shadow-lg',
-              )}
+              className="absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-xl border border-[#D9E7E1] bg-white shadow-lg"
             >
-              <div className="border-b border-gray-100 px-4 py-3">
-                <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-                <p className="mt-0.5 truncate text-sm text-gray-600">{user.email}</p>
-                <p className="mt-1 text-xs capitalize text-gray-500">
-                  {t('header.profile.role', 'Role')}
-                  {': '}
-                  {user.role}
-                </p>
+              <div
+                className="flex items-center gap-3 px-4 py-4"
+                style={{ background: 'linear-gradient(135deg,#E1F0EA 0%,#FFFFFF 90%)' }}
+              >
+                <Avatar initials={initials} size="lg" />
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-[#1A312C]">{user.name}</p>
+                  <p className="truncate text-sm text-gray-600">{user.email}</p>
+                  <span
+                    className={cn(
+                      'mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize',
+                      isAdmin ? 'bg-[#1A312C] text-white' : 'bg-[#DDF6EB] text-[#1A312C]',
+                    )}
+                  >
+                    {user.role}
+                  </span>
+                </div>
               </div>
 
-              <button
-                type="button"
-                role="menuitem"
-                onClick={handleChangePassword}
-                className={cn(
-                  'flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-800',
-                  'hover:bg-gray-50 transition-colors',
-                )}
-              >
-                <KeyRound className="h-4 w-4 text-gray-700" />
-                {t('header.profile.changePassword', 'Change Password')}
-              </button>
+              <div className="py-1">
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => go(AppConstants.Routes.Private.Profile)}
+                  className={cn(itemClass, 'text-gray-800 hover:bg-[#F3F8F6]')}
+                >
+                  <KeyRound className="size-4 text-[#428475]" />
+                  {t('header.profile.changePassword', 'Change Password')}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => go(AppConstants.Routes.Private.Orders)}
+                  className={cn(itemClass, 'text-gray-800 hover:bg-[#F3F8F6]')}
+                >
+                  <span aria-hidden="true" className="w-4 text-center text-[#428475]">▤</span>
+                  {t('menu.ordersList', 'Order list')}
+                </button>
+              </div>
 
-              <button
-                type="button"
-                role="menuitem"
-                onClick={handleLogout}
-                className={cn(
-                  'flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-800',
-                  'hover:bg-gray-50 transition-colors',
-                )}
-              >
-                <LogOut className="h-4 w-4 text-gray-700" />
-                {t('menu.logout', 'Log out')}
-              </button>
+              <div className="border-t border-gray-100 py-1">
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={handleLogout}
+                  className={cn(itemClass, 'text-red-700 hover:bg-red-50')}
+                >
+                  <LogOut className="size-4" />
+                  {t('menu.logout', 'Log out')}
+                </button>
+              </div>
             </div>
           )
         : null}

@@ -1,6 +1,7 @@
 import { useT } from '@/hooks/use-t';
 
 import AppButton from '@/components/ui/AppButton';
+import { getProductStockTotal } from '@/libs/product-stock';
 import type { Product } from '@/models';
 
 import { adminInputClass, adminLabelClass } from './admin-form-styles';
@@ -15,6 +16,8 @@ interface InventoryLineItemsFormProps {
   items: InventoryLineItemRow[];
   products: Product[];
   onChange: (items: InventoryLineItemRow[]) => void;
+  /** Show on-hand stock per line and flag quantities that exceed it (sales). */
+  showStock?: boolean;
 }
 
 const emptyRow = (products: Product[]): InventoryLineItemRow => ({
@@ -27,6 +30,7 @@ export default function InventoryLineItemsForm({
   items,
   products,
   onChange,
+  showStock = false,
 }: InventoryLineItemsFormProps) {
   const { t } = useT();  const updateRow = (index: number, patch: Partial<InventoryLineItemRow>) => {
     onChange(items.map((row, i) => (i === index ? { ...row, ...patch } : row)));
@@ -110,6 +114,7 @@ export default function InventoryLineItemsForm({
               })}
               className={adminInputClass}
             />
+            {showStock ? <StockHint product={products.find(p => p.id === row.productId)} quantity={row.quantity} /> : null}
           </div>
           <div>
             <label className={adminLabelClass}>
@@ -141,5 +146,27 @@ export default function InventoryLineItemsForm({
         </div>
       ))}
     </div>
+  );
+}
+
+function StockHint({ product, quantity }: { product?: Product; quantity: number }) {
+  const { t } = useT();
+
+  if (!product || product.type !== 'goods') {
+    return null;
+  }
+
+  const available = getProductStockTotal(product);
+  const short = quantity > available;
+
+  return (
+    <p
+      className={short ? 'mt-1 text-xs font-medium text-red-700' : 'mt-1 text-xs text-gray-500'}
+      role={short ? 'alert' : undefined}
+    >
+      {short
+        ? t('admin.stockShort', 'Only {n} in stock', { n: available })
+        : t('admin.stockAvailable', '{n} in stock', { n: available })}
+    </p>
   );
 }

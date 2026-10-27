@@ -15,3 +15,4 @@ export * from './purchase-items';
 export * from './sales';
 export * from './sale-items';
 export * from './users';
+export * from './inventory';

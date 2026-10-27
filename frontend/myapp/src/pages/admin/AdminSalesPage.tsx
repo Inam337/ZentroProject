@@ -14,10 +14,15 @@ import FormDrawer from '@/components/ui/FormDrawer';
 import PageShell from '@/components/ui/PageShell';
 import PageToolbar from '@/components/ui/PageToolbar';
 import { actionColumn, dateColumn } from '@/components/ui/data-table-columns';
+import { adminInputClass, adminLabelClass } from '@/components/admin/admin-form-styles';
 import { formatMoney } from '@/libs/format-money';
-import type { Product, Sale } from '@/models';
+import { printSaleInvoice } from '@/libs/print-invoice';
+import { getProductStockTotal } from '@/libs/product-stock';
+import { listCustomers } from '@/services/customers';
+import type { Customer, Product, Sale } from '@/models';
 import { listProducts } from '@/services/products';
-import { createSale, deleteSale, listSales } from '@/services/sales';
+import { cancelSale, createSale, deleteSale, listSales } from '@/services/sales';
+import StatusBadge from '@/components/commerce/StatusBadge';
 
 function buildDefaultLines(products: Product[]): InventoryLineItemRow[] {
   if (products.length === 0) {
@@ -39,6 +44,8 @@ export default function AdminSalesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customerId, setCustomerId] = useState('');
   const [lines, setLines] = useState<InventoryLineItemRow[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -47,6 +54,7 @@ export default function AdminSalesPage() {
 
   const resetFormFields = useCallback(() => {
     setFormError(null);
+    setCustomerId('');
     setLines(buildDefaultLines(products));
   }, [products]);
 
@@ -56,10 +64,15 @@ export default function AdminSalesPage() {
     setLoading(true);
     setError(null);
 
-    const [salesResult, productsResult] = await Promise.all([
+    const [salesResult, productsResult, customersResult] = await Promise.all([
       listSales(),
       listProducts(),
+      listCustomers(),
     ]);
+
+    if (customersResult.ok) {
+      setCustomers(customersResult.data);
+    }
 
     if (!salesResult.ok) {
       setError(salesResult.error.message);
@@ -89,10 +102,27 @@ export default function AdminSalesPage() {
       return;
     }
 
+    // Mirror the server rule so the admin gets feedback before the round trip.
+    for (const line of lines) {
+      const product = products.find(p => p.id === line.productId);
+
+      if (product?.type === 'goods' && line.quantity > getProductStockTotal(product)) {
+        setFormError(t('admin.saleOverStock', 'Not enough stock for {name} (available: {n})', {
+          name: product.name,
+          n: getProductStockTotal(product),
+        }));
+
+        return;
+      }
+    }
+
     setSubmitting(true);
     setFormError(null);
 
-    const result = await createSale({ items: lines });
+    const result = await createSale({
+      items: lines,
+      customerId: customerId ? Number.parseInt(customerId, 10) : undefined,
+    });
 
     if (!result.ok) {
       setFormError(result.error.message);
@@ -106,6 +136,22 @@ export default function AdminSalesPage() {
     resetFormFields();
     await load();
   };
+
+  const handleCancel = useCallback(async (id: number) => {
+    if (!window.confirm(t('admin.confirmCancel', 'Cancel this sale? Stock will be adjusted back.'))) {
+      return;
+    }
+
+    const result = await cancelSale(id);
+
+    if (!result.ok) {
+      setError(result.error.message);
+
+      return;
+    }
+
+    await load();
+  }, [load, t]);
 
   const handleDelete = useCallback(async (id: number) => {
     if (!window.confirm(t('admin.confirmDelete', 'Delete this item?'))) {
@@ -139,6 +185,13 @@ export default function AdminSalesPage() {
       ),
     },
     {
+      id: 'customer',
+      accessorFn: row => row.customer?.name ?? '',
+      header: t('admin.customer', 'Customer'),
+      enableSorting: true,
+      cell: ({ row }) => row.original.customer?.name ?? t('admin.walkIn', 'Walk-in customer'),
+    },
+    {
       accessorKey: 'totalAmount',
       header: t('common.total', 'Total'),
       enableSorting: true,
@@ -155,6 +208,18 @@ export default function AdminSalesPage() {
         </span>
       ),
     },
+    {
+      id: 'status',
+      accessorFn: row => row.status ?? 'completed',
+      header: t('admin.status', 'Status'),
+      enableSorting: true,
+      cell: ({ row }) => (
+        <StatusBadge
+          label={row.original.status === 'cancelled' ? t('admin.cancelled', 'Cancelled') : t('admin.completed', 'Completed')}
+          tone={row.original.status === 'cancelled' ? 'danger' : 'success'}
+        />
+      ),
+    },
     dateColumn<Sale>(
       row => row.soldAt,
       {
@@ -163,11 +228,39 @@ export default function AdminSalesPage() {
         enableSorting: true,
       },
     ),
+    {
+      id: 'invoice',
+      header: '',
+      cell: ({ row }) => (
+        <button
+          type="button"
+          onClick={() => printSaleInvoice(row.original)}
+          className="text-sm font-medium text-[#428475] hover:underline"
+        >
+          {t('admin.printInvoice', 'Print invoice')}
+        </button>
+      ),
+    },
+    {
+      id: 'cancel',
+      header: '',
+      cell: ({ row }) => row.original.status === 'cancelled'
+        ? null
+        : (
+            <button
+              type="button"
+              onClick={() => void handleCancel(row.original.id)}
+              className="text-sm font-medium text-amber-700 hover:underline"
+            >
+              {t('admin.cancel', 'Cancel')}
+            </button>
+          ),
+    },
     actionColumn<Sale>({
       onDelete: sale => void handleDelete(sale.id),
       deleteLabel: t('admin.delete', 'Delete'),
     }),
-  ], [t, handleDelete]);
+  ], [t, handleDelete, handleCancel]);
 
   return (
     <CommercePageState
@@ -202,10 +295,31 @@ export default function AdminSalesPage() {
           cancelLabel={t('admin.cancel', 'Cancel')}
           size="lg"
         >
+          <div>
+            <label className={adminLabelClass}>
+              {t('admin.customer', 'Customer (optional)')}
+            </label>
+            <select
+              value={customerId}
+              onChange={e => setCustomerId(e.target.value)}
+              className={adminInputClass}
+            >
+              <option value="">{t('admin.walkIn', 'Walk-in customer')}</option>
+              {customers.map(customer => (
+                <option
+                  key={customer.id}
+                  value={customer.id}
+                >
+                  {customer.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <InventoryLineItemsForm
             items={lines}
             products={products}
             onChange={setLines}
+            showStock
           />
           <FieldError msg={formError} variant="form" />
         </FormDrawer>

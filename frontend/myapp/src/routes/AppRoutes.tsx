@@ -12,6 +12,9 @@ import {
   AdminCategoriesPage,
   AdminProductsPage,
   AdminCustomersPage,
+  AdminInventoryPage,
+  AdminInvoicesPage,
+  AdminStockAlertsPage,
   AdminPurchasesPage,
   AdminSalesPage,
   AdminStockPage,
@@ -120,6 +123,18 @@ export default function AppRoutes() {
           <Route
             path={AppConstants.Routes.Private.Admin.Users}
             element={<AdminUsersPage />}
+          />
+          <Route
+            path={AppConstants.Routes.Private.Admin.Inventory}
+            element={<AdminInventoryPage />}
+          />
+          <Route
+            path={AppConstants.Routes.Private.Admin.Invoices}
+            element={<AdminInvoicesPage />}
+          />
+          <Route
+            path={AppConstants.Routes.Private.Admin.StockAlerts}
+            element={<AdminStockAlertsPage />}
           />
         </Route>
         <Route

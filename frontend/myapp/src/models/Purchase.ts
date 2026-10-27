@@ -5,6 +5,7 @@ import type { Supplier } from './Supplier';
 export interface Purchase {
   id: number;
   totalAmount: DecimalAmount;
+  status?: 'completed' | 'cancelled';
   supplier?: Supplier | null;
   items?: PurchaseItem[];
   purchasedAt?: IsoDateString;

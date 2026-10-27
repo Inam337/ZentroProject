@@ -19,7 +19,8 @@ import { actionColumn, dateColumn } from '@/components/ui/data-table-columns';
 import { formatMoney } from '@/libs/format-money';
 import type { Product, Purchase, Supplier } from '@/models';
 import { listProducts } from '@/services/products';
-import { createPurchase, deletePurchase, listPurchases } from '@/services/purchases';
+import { cancelPurchase, createPurchase, deletePurchase, listPurchases } from '@/services/purchases';
+import StatusBadge from '@/components/commerce/StatusBadge';
 import { listSuppliers } from '@/services/suppliers';
 
 function buildDefaultLines(products: Product[]): InventoryLineItemRow[] {
@@ -126,6 +127,22 @@ export default function AdminPurchasesPage() {
     await load();
   };
 
+  const handleCancel = useCallback(async (id: number) => {
+    if (!window.confirm(t('admin.confirmCancel', 'Cancel this purchase? Stock will be adjusted back.'))) {
+      return;
+    }
+
+    const result = await cancelPurchase(id);
+
+    if (!result.ok) {
+      setError(result.error.message);
+
+      return;
+    }
+
+    await load();
+  }, [load, t]);
+
   const handleDelete = useCallback(async (id: number) => {
     if (!window.confirm(t('admin.confirmDelete', 'Delete this item?'))) {
       return;
@@ -194,6 +211,18 @@ export default function AdminPurchasesPage() {
         </span>
       ),
     },
+    {
+      id: 'status',
+      accessorFn: row => row.status ?? 'completed',
+      header: t('admin.status', 'Status'),
+      enableSorting: true,
+      cell: ({ row }) => (
+        <StatusBadge
+          label={row.original.status === 'cancelled' ? t('admin.cancelled', 'Cancelled') : t('admin.completed', 'Completed')}
+          tone={row.original.status === 'cancelled' ? 'danger' : 'success'}
+        />
+      ),
+    },
     dateColumn<Purchase>(
       row => row.purchasedAt,
       {
@@ -202,11 +231,26 @@ export default function AdminPurchasesPage() {
         enableSorting: true,
       },
     ),
+    {
+      id: 'cancel',
+      header: '',
+      cell: ({ row }) => row.original.status === 'cancelled'
+        ? null
+        : (
+            <button
+              type="button"
+              onClick={() => void handleCancel(row.original.id)}
+              className="text-sm font-medium text-amber-700 hover:underline"
+            >
+              {t('admin.cancel', 'Cancel')}
+            </button>
+          ),
+    },
     actionColumn<Purchase>({
       onDelete: purchase => void handleDelete(purchase.id),
       deleteLabel: t('admin.delete', 'Delete'),
     }),
-  ], [t, handleDelete]);
+  ], [t, handleDelete, handleCancel]);
 
   return (
     <CommercePageState

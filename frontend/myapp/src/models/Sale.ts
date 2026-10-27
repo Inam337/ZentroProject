@@ -1,9 +1,12 @@
 import type { DecimalAmount, IsoDateString } from './common';
+import type { Customer } from './Customer';
 import type { SaleItem } from './SaleItem';
 
 export interface Sale {
   id: number;
   totalAmount: DecimalAmount;
+  status?: 'completed' | 'cancelled';
+  customer?: Customer | null;
   items?: SaleItem[];
   soldAt?: IsoDateString;
 }
@@ -15,6 +18,7 @@ export interface SaleItemInput {
 }
 
 export interface CreateSaleRequest {
+  customerId?: number;
   items: SaleItemInput[];
 }
 

@@ -6,3 +6,6 @@ export { default as AdminPurchasesPage } from './AdminPurchasesPage';
 export { default as AdminSalesPage } from './AdminSalesPage';
 export { default as AdminCustomersPage } from './AdminCustomersPage';
 export { default as AdminUsersPage } from './AdminUsersPage';
+export { default as AdminInventoryPage } from './AdminInventoryPage';
+export { default as AdminInvoicesPage } from './AdminInvoicesPage';
+export { default as AdminStockAlertsPage } from './AdminStockAlertsPage';

@@ -33,6 +33,9 @@ const routeTitleKeys: Record<string, string> = {
   [AppConstants.Routes.Private.Admin.Sales]: 'menu.adminSales',
   [AppConstants.Routes.Private.Admin.Customers]: 'menu.adminCustomers',
   [AppConstants.Routes.Private.Admin.Users]: 'menu.adminUsers',
+  [AppConstants.Routes.Private.Admin.Inventory]: 'menu.adminInventory',
+  [AppConstants.Routes.Private.Admin.Invoices]: 'menu.adminInvoices',
+  [AppConstants.Routes.Private.Admin.StockAlerts]: 'menu.adminStockAlerts',
 };
 
 function resolveTitleKey(pathname: string): string | undefined {
@@ -67,6 +70,10 @@ function MainLayoutContent({
     void fetchCart();
   }, [fetchCart]);
 
+  const section = location.pathname.startsWith('/admin')
+    ? t('menu.admin', 'Admin')
+    : t('header.section.shop', 'Shop');
+
   const pageTitle = headerTitle
     ?? (titleKey
       ? t(titleKey, titleKey)
@@ -78,9 +85,10 @@ function MainLayoutContent({
       <div className="flex min-w-0 flex-1 flex-col">
         <header
           className={[
-            'sticky top-0 z-30 flex items-center justify-between gap-4 h-15',
-            'border-b border-gray-200 bg-white px-2 py-2 sm:px-4',
+            'sticky top-0 z-30 flex h-16 items-center justify-between gap-4',
+            'border-b border-[#E3EDE8] px-3 shadow-[0_1px_0_rgba(26,49,44,0.03)] backdrop-blur sm:px-6',
           ].join(' ')}
+          style={{ background: 'linear-gradient(90deg,rgba(255,255,255,0.96) 0%,rgba(225,240,234,0.75) 100%)' }}
         >
           <div className="flex min-w-0 flex-1 items-center gap-3 ">
             {isMobile
@@ -95,15 +103,18 @@ function MainLayoutContent({
                   </button>
                 )
               : null}
-            <h1 className="truncate text-lg font-semibold text-gray-900">{pageTitle}</h1>
+            <div className="min-w-0 leading-tight">
+              <p className="hidden text-[11px] font-medium uppercase tracking-wider text-[#428475] sm:block">{section}</p>
+              <h1 className="truncate text-lg font-semibold text-[#1A312C] sm:text-xl">{pageTitle}</h1>
+            </div>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <LanguageSwitcher />
             <HeaderCartLink />
             <HeaderProfileDropdown />
           </div>
         </header>
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="min-w-0 flex-1 p-3 sm:p-6">
           {children}
         </main>
       </div>
